@@ -1,11 +1,9 @@
 import type { NextPage } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  AppleSvg,
   BigCloseSvg,
-  BoySvg,
   CloseSvg,
   DoneSvg,
   LessonFastForwardEndFailSvg,
@@ -13,35 +11,20 @@ import {
   LessonFastForwardStartSvg,
   LessonTopBarEmptyHeart,
   LessonTopBarHeart,
-  WomanSvg,
 } from "~/components/Svgs";
 import womanPng from "../../public/woman.png";
 import { useBoundStore } from "~/hooks/useBoundStore";
 import { useRouter } from "next/router";
-
-const lessonProblem1 = {
-  type: "SELECT_1_OF_3",
-  question: `Which one of these is "the apple"?`,
-  answers: [
-    { icon: <AppleSvg />, name: "la manzana" },
-    { icon: <BoySvg />, name: "el niño" },
-    { icon: <WomanSvg />, name: "la mujer" },
-  ],
-  correctAnswer: 0,
-} as const;
-
-const lessonProblem2 = {
-  type: "WRITE_IN_ENGLISH",
-  question: "El niño",
-  answerTiles: ["woman", "milk", "water", "I", "The", "boy"],
-  correctAnswer: [4, 5],
-} as const;
-
-const lessonProblems = [lessonProblem1, lessonProblem2];
-
-const numbersEqual = (a: readonly number[], b: readonly number[]): boolean => {
-  return a.length === b.length && a.every((_, i) => a[i] === b[i]);
-};
+import { defaultLesson, getLesson } from "~/courses/spanishSpain";
+import type { Problem } from "~/courses/types";
+import {
+  answersMatch,
+  normalizeSpanish,
+  speakingMatches,
+  speakSpanish,
+  useSpeechRecognition,
+  useTtsReady,
+} from "~/hooks/useSpeech";
 
 const formatTime = (timeMs: number): string => {
   const seconds = Math.floor(timeMs / 1000) % 60;
@@ -56,17 +39,30 @@ const formatTime = (timeMs: number): string => {
     .join(":");
 };
 
+const tilesToString = (tiles: readonly string[], indices: readonly number[]) =>
+  indices.map((i) => tiles[i] ?? "").join(" ");
+
 const Lesson: NextPage = () => {
   const router = useRouter();
 
-  const [lessonProblem, setLessonProblem] = useState(0);
+  const unitParam = router.query.unit;
+  const tileParam = router.query.tile;
+  const hasTileParams =
+    typeof unitParam === "string" && typeof tileParam === "string";
+
+  const lesson = useMemo(() => {
+    if (!hasTileParams) return defaultLesson;
+    return getLesson(Number(unitParam), Number(tileParam));
+  }, [hasTileParams, unitParam, tileParam]);
+
+  const [lessonProblemIndex, setLessonProblemIndex] = useState(0);
   const [correctAnswerCount, setCorrectAnswerCount] = useState(0);
   const [incorrectAnswerCount, setIncorrectAnswerCount] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<null | number>(null);
+  const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
+  const [typedAnswer, setTypedAnswer] = useState("");
+  const [spokenAnswer, setSpokenAnswer] = useState("");
   const [correctAnswerShown, setCorrectAnswerShown] = useState(false);
   const [quitMessageShown, setQuitMessageShown] = useState(false);
-
-  const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
 
   const startTime = useRef(Date.now());
   const endTime = useRef(startTime.current + 1000 * 60 * 3 + 1000 * 33);
@@ -74,9 +70,8 @@ const Lesson: NextPage = () => {
   const [questionResults, setQuestionResults] = useState<QuestionResult[]>([]);
   const [reviewLessonShown, setReviewLessonShown] = useState(false);
 
-  const problem = lessonProblems[lessonProblem] ?? lessonProblem1;
-
-  const totalCorrectAnswersNeeded = 2;
+  const totalCorrectAnswersNeeded = lesson.problems.length;
+  const problem: Problem | undefined = lesson.problems[lessonProblemIndex];
 
   const [isStartingLesson, setIsStartingLesson] = useState(true);
   const hearts =
@@ -85,46 +80,68 @@ const Lesson: NextPage = () => {
       ? 3 - incorrectAnswerCount
       : null;
 
-  const { correctAnswer } = problem;
-  const isAnswerCorrect = Array.isArray(correctAnswer)
-    ? numbersEqual(selectedAnswers, correctAnswer)
-    : selectedAnswer === correctAnswer;
+  const isAnswerCorrect = useMemo(() => {
+    if (!problem) return false;
+    switch (problem.type) {
+      case "WRITE_IN_ENGLISH":
+      case "WRITE_IN_SPANISH": {
+        const userString = tilesToString(problem.answerTiles, selectedAnswers);
+        const correctString = tilesToString(
+          problem.answerTiles,
+          problem.correctAnswer,
+        );
+        return userString.trim() === correctString.trim();
+      }
+      case "FREE_WRITE_ES":
+        return answersMatch(typedAnswer, problem.acceptableAnswers);
+      case "LISTEN":
+        return answersMatch(typedAnswer, problem.acceptableAnswers);
+      case "SPEAK":
+        return speakingMatches(spokenAnswer, problem.targetEs);
+    }
+  }, [problem, selectedAnswers, typedAnswer, spokenAnswer]);
+
+  const isAnswerSelected = useMemo(() => {
+    if (!problem) return false;
+    switch (problem.type) {
+      case "WRITE_IN_ENGLISH":
+      case "WRITE_IN_SPANISH":
+        return selectedAnswers.length > 0;
+      case "FREE_WRITE_ES":
+      case "LISTEN":
+        return typedAnswer.trim().length > 0;
+      case "SPEAK":
+        return spokenAnswer.trim().length > 0;
+    }
+  }, [problem, selectedAnswers, typedAnswer, spokenAnswer]);
 
   const onCheckAnswer = () => {
+    if (!problem) return;
     setCorrectAnswerShown(true);
     if (isAnswerCorrect) {
       setCorrectAnswerCount((x) => x + 1);
     } else {
       setIncorrectAnswerCount((x) => x + 1);
     }
-    setQuestionResults((questionResults) => [
-      ...questionResults,
-      {
-        question: problem.question,
-        yourResponse:
-          problem.type === "SELECT_1_OF_3"
-            ? problem.answers[selectedAnswer ?? 0]?.name ?? ""
-            : selectedAnswers.map((i) => problem.answerTiles[i]).join(" "),
-        correctResponse:
-          problem.type === "SELECT_1_OF_3"
-            ? problem.answers[problem.correctAnswer].name
-            : problem.correctAnswer
-                .map((i) => problem.answerTiles[i])
-                .join(" "),
-      },
-    ]);
+    const result = buildQuestionResult(
+      problem,
+      selectedAnswers,
+      typedAnswer,
+      spokenAnswer,
+    );
+    setQuestionResults((prev) => [...prev, result]);
   };
 
   const onFinish = () => {
-    setSelectedAnswer(null);
     setSelectedAnswers([]);
+    setTypedAnswer("");
+    setSpokenAnswer("");
     setCorrectAnswerShown(false);
-    setLessonProblem((x) => (x + 1) % lessonProblems.length);
+    setLessonProblemIndex((x) => x + 1);
     endTime.current = Date.now();
   };
 
   const onSkip = () => {
-    setSelectedAnswer(null);
     setCorrectAnswerShown(true);
   };
 
@@ -180,50 +197,134 @@ const Lesson: NextPage = () => {
     );
   }
 
-  switch (problem.type) {
-    case "SELECT_1_OF_3": {
-      return (
-        <ProblemSelect1Of3
-          problem={problem}
-          correctAnswerCount={correctAnswerCount}
-          totalCorrectAnswersNeeded={totalCorrectAnswersNeeded}
-          selectedAnswer={selectedAnswer}
-          setSelectedAnswer={setSelectedAnswer}
-          quitMessageShown={quitMessageShown}
-          correctAnswerShown={correctAnswerShown}
-          setQuitMessageShown={setQuitMessageShown}
-          isAnswerCorrect={isAnswerCorrect}
-          onCheckAnswer={onCheckAnswer}
-          onFinish={onFinish}
-          onSkip={onSkip}
-          hearts={hearts}
-        />
-      );
-    }
+  if (!problem) {
+    return null;
+  }
 
-    case "WRITE_IN_ENGLISH": {
+  const sharedProps = {
+    correctAnswerCount,
+    totalCorrectAnswersNeeded,
+    quitMessageShown,
+    correctAnswerShown,
+    setQuitMessageShown,
+    isAnswerCorrect,
+    isAnswerSelected,
+    onCheckAnswer,
+    onFinish,
+    onSkip,
+    hearts,
+  };
+
+  switch (problem.type) {
+    case "WRITE_IN_ENGLISH":
       return (
         <ProblemWriteInEnglish
           problem={problem}
-          correctAnswerCount={correctAnswerCount}
-          totalCorrectAnswersNeeded={totalCorrectAnswersNeeded}
           selectedAnswers={selectedAnswers}
           setSelectedAnswers={setSelectedAnswers}
-          quitMessageShown={quitMessageShown}
-          correctAnswerShown={correctAnswerShown}
-          setQuitMessageShown={setQuitMessageShown}
-          isAnswerCorrect={isAnswerCorrect}
-          onCheckAnswer={onCheckAnswer}
-          onFinish={onFinish}
-          onSkip={onSkip}
-          hearts={hearts}
+          {...sharedProps}
         />
       );
-    }
+    case "WRITE_IN_SPANISH":
+      return (
+        <ProblemWriteInSpanish
+          problem={problem}
+          selectedAnswers={selectedAnswers}
+          setSelectedAnswers={setSelectedAnswers}
+          {...sharedProps}
+        />
+      );
+    case "FREE_WRITE_ES":
+      return (
+        <ProblemFreeWriteEs
+          problem={problem}
+          typedAnswer={typedAnswer}
+          setTypedAnswer={setTypedAnswer}
+          {...sharedProps}
+        />
+      );
+    case "LISTEN":
+      return (
+        <ProblemListen
+          problem={problem}
+          typedAnswer={typedAnswer}
+          setTypedAnswer={setTypedAnswer}
+          {...sharedProps}
+        />
+      );
+    case "SPEAK":
+      return (
+        <ProblemSpeak
+          problem={problem}
+          spokenAnswer={spokenAnswer}
+          setSpokenAnswer={setSpokenAnswer}
+          {...sharedProps}
+        />
+      );
   }
 };
 
 export default Lesson;
+
+type SharedProblemProps = {
+  correctAnswerCount: number;
+  totalCorrectAnswersNeeded: number;
+  quitMessageShown: boolean;
+  correctAnswerShown: boolean;
+  setQuitMessageShown: React.Dispatch<React.SetStateAction<boolean>>;
+  isAnswerCorrect: boolean;
+  isAnswerSelected: boolean;
+  onCheckAnswer: () => void;
+  onFinish: () => void;
+  onSkip: () => void;
+  hearts: number | null;
+};
+
+const buildQuestionResult = (
+  problem: Problem,
+  selectedAnswers: number[],
+  typedAnswer: string,
+  spokenAnswer: string,
+): QuestionResult => {
+  switch (problem.type) {
+    case "WRITE_IN_ENGLISH":
+      return {
+        question: problem.questionEs,
+        yourResponse: tilesToString(problem.answerTiles, selectedAnswers),
+        correctResponse: tilesToString(
+          problem.answerTiles,
+          problem.correctAnswer,
+        ),
+      };
+    case "WRITE_IN_SPANISH":
+      return {
+        question: problem.questionEn,
+        yourResponse: tilesToString(problem.answerTiles, selectedAnswers),
+        correctResponse: tilesToString(
+          problem.answerTiles,
+          problem.correctAnswer,
+        ),
+      };
+    case "FREE_WRITE_ES":
+      return {
+        question: problem.questionEn,
+        yourResponse: typedAnswer,
+        correctResponse: problem.acceptableAnswers[0] ?? "",
+      };
+    case "LISTEN":
+      return {
+        question: `Listen: "${problem.tts}"`,
+        yourResponse: typedAnswer,
+        correctResponse: problem.acceptableAnswers[0] ?? problem.tts,
+      };
+    case "SPEAK":
+      return {
+        question: problem.questionEn,
+        yourResponse: spokenAnswer,
+        correctResponse: problem.targetEs,
+      };
+  }
+};
 
 const ProgressBar = ({
   correctAnswerCount,
@@ -398,7 +499,7 @@ const CheckAnswer = ({
                 <div className="hidden rounded-full bg-white p-5 text-green-500 sm:block">
                   <DoneSvg />
                 </div>
-                <div className="text-2xl">Good job!</div>
+                <div className="text-2xl">¡Genial!</div>
               </div>
             ) : (
               <div className="mb-2 flex flex-col gap-5 sm:flex-row sm:items-center">
@@ -428,37 +529,21 @@ const CheckAnswer = ({
   );
 };
 
-const ProblemSelect1Of3 = ({
-  problem,
+const LessonShell = ({
+  children,
   correctAnswerCount,
   totalCorrectAnswersNeeded,
-  selectedAnswer,
-  setSelectedAnswer,
-  quitMessageShown,
-  correctAnswerShown,
   setQuitMessageShown,
-  isAnswerCorrect,
-  onCheckAnswer,
-  onFinish,
-  onSkip,
   hearts,
+  quitMessageShown,
 }: {
-  problem: typeof lessonProblem1;
+  children: React.ReactNode;
   correctAnswerCount: number;
   totalCorrectAnswersNeeded: number;
-  selectedAnswer: number | null;
-  setSelectedAnswer: React.Dispatch<React.SetStateAction<number | null>>;
-  correctAnswerShown: boolean;
-  quitMessageShown: boolean;
   setQuitMessageShown: React.Dispatch<React.SetStateAction<boolean>>;
-  isAnswerCorrect: boolean;
-  onCheckAnswer: () => void;
-  onFinish: () => void;
-  onSkip: () => void;
   hearts: number | null;
+  quitMessageShown: boolean;
 }) => {
-  const { question, answers, correctAnswer } = problem;
-
   return (
     <div className="flex min-h-screen flex-col gap-5 px-4 py-5 sm:px-0 sm:py-0">
       <div className="flex grow flex-col items-center gap-5">
@@ -470,47 +555,8 @@ const ProblemSelect1Of3 = ({
             hearts={hearts}
           />
         </div>
-        <section className="flex max-w-2xl grow flex-col gap-5 self-center sm:items-center sm:justify-center sm:gap-24 sm:px-5">
-          <h1 className="self-start text-2xl font-bold sm:text-3xl">
-            {question}
-          </h1>
-          <div
-            className="grid grid-cols-2 gap-2 sm:grid-cols-3"
-            role="radiogroup"
-          >
-            {answers.map((answer, i) => {
-              return (
-                <div
-                  key={i}
-                  className={
-                    i === selectedAnswer
-                      ? "cursor-pointer rounded-xl border-2 border-b-4 border-blue-300 bg-blue-100 p-4 text-blue-400"
-                      : "cursor-pointer rounded-xl border-2 border-b-4 border-gray-200 p-4 hover:bg-gray-100"
-                  }
-                  role="radio"
-                  aria-checked={i === selectedAnswer}
-                  tabIndex={0}
-                  onClick={() => setSelectedAnswer(i)}
-                >
-                  {answer.icon}
-                  <h2 className="text-center">{answer.name}</h2>
-                </div>
-              );
-            })}
-          </div>
-        </section>
+        {children}
       </div>
-
-      <CheckAnswer
-        correctAnswer={answers[correctAnswer].name}
-        correctAnswerShown={correctAnswerShown}
-        isAnswerCorrect={isAnswerCorrect}
-        isAnswerSelected={selectedAnswer !== null}
-        onCheckAnswer={onCheckAnswer}
-        onFinish={onFinish}
-        onSkip={onSkip}
-      />
-
       <QuitMessage
         quitMessageShown={quitMessageShown}
         setQuitMessageShown={setQuitMessageShown}
@@ -519,129 +565,394 @@ const ProblemSelect1Of3 = ({
   );
 };
 
-const ProblemWriteInEnglish = ({
+const Wordbank = ({
   problem,
-  correctAnswerCount,
-  totalCorrectAnswersNeeded,
   selectedAnswers,
   setSelectedAnswers,
-  quitMessageShown,
-  correctAnswerShown,
-  setQuitMessageShown,
-  isAnswerCorrect,
-  onCheckAnswer,
-  onFinish,
-  onSkip,
-  hearts,
+  promptHeader,
+  questionText,
+  speakerText,
 }: {
-  problem: typeof lessonProblem2;
-  correctAnswerCount: number;
-  totalCorrectAnswersNeeded: number;
+  problem: Extract<Problem, { type: "WRITE_IN_ENGLISH" | "WRITE_IN_SPANISH" }>;
   selectedAnswers: number[];
   setSelectedAnswers: React.Dispatch<React.SetStateAction<number[]>>;
-  correctAnswerShown: boolean;
-  quitMessageShown: boolean;
-  setQuitMessageShown: React.Dispatch<React.SetStateAction<boolean>>;
-  isAnswerCorrect: boolean;
-  onCheckAnswer: () => void;
-  onFinish: () => void;
-  onSkip: () => void;
-  hearts: number | null;
+  promptHeader: string;
+  questionText: string;
+  speakerText?: string;
 }) => {
-  const { question, correctAnswer, answerTiles } = problem;
+  const { answerTiles } = problem;
+  return (
+    <section className="flex max-w-2xl grow flex-col gap-5 self-center sm:items-center sm:justify-center sm:gap-24">
+      <h1 className="mb-2 text-2xl font-bold sm:text-3xl">{promptHeader}</h1>
+      <div className="w-full">
+        <div className="flex items-center gap-2 px-2">
+          <Image src={womanPng} alt="" width={92} height={115} />
+          <div className="relative ml-2 w-fit rounded-2xl border-2 border-gray-200 p-4">
+            {speakerText ?? questionText}
+            <div
+              className="absolute h-4 w-4 rotate-45 border-b-2 border-l-2 border-gray-200 bg-white"
+              style={{ top: "calc(50% - 8px)", left: "-10px" }}
+            ></div>
+          </div>
+        </div>
+        <div className="flex min-h-[60px] flex-wrap gap-1 border-b-2 border-t-2 border-gray-200 py-1">
+          {selectedAnswers.map((i) => (
+            <button
+              key={`s-${i}`}
+              className="rounded-2xl border-2 border-b-4 border-gray-200 p-2 text-gray-700"
+              onClick={() =>
+                setSelectedAnswers((prev) => prev.filter((x) => x !== i))
+              }
+            >
+              {answerTiles[i]}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="flex flex-wrap justify-center gap-1">
+        {answerTiles.map((answerTile, i) => (
+          <button
+            key={i}
+            className={
+              selectedAnswers.includes(i)
+                ? "rounded-2xl border-2 border-b-4 border-gray-200 bg-gray-200 p-2 text-gray-200"
+                : "rounded-2xl border-2 border-b-4 border-gray-200 p-2 text-gray-700"
+            }
+            disabled={selectedAnswers.includes(i)}
+            onClick={() =>
+              setSelectedAnswers((prev) =>
+                prev.includes(i) ? prev : [...prev, i],
+              )
+            }
+          >
+            {answerTile}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+const ProblemWriteInEnglish = ({
+  problem,
+  selectedAnswers,
+  setSelectedAnswers,
+  ...shared
+}: SharedProblemProps & {
+  problem: Extract<Problem, { type: "WRITE_IN_ENGLISH" }>;
+  selectedAnswers: number[];
+  setSelectedAnswers: React.Dispatch<React.SetStateAction<number[]>>;
+}) => {
+  return (
+    <LessonShell
+      correctAnswerCount={shared.correctAnswerCount}
+      totalCorrectAnswersNeeded={shared.totalCorrectAnswersNeeded}
+      setQuitMessageShown={shared.setQuitMessageShown}
+      hearts={shared.hearts}
+      quitMessageShown={shared.quitMessageShown}
+    >
+      <Wordbank
+        problem={problem}
+        selectedAnswers={selectedAnswers}
+        setSelectedAnswers={setSelectedAnswers}
+        promptHeader="Write this in English"
+        questionText={problem.questionEs}
+      />
+      <CheckAnswer
+        correctAnswer={tilesToString(problem.answerTiles, problem.correctAnswer)}
+        correctAnswerShown={shared.correctAnswerShown}
+        isAnswerCorrect={shared.isAnswerCorrect}
+        isAnswerSelected={shared.isAnswerSelected}
+        onCheckAnswer={shared.onCheckAnswer}
+        onFinish={shared.onFinish}
+        onSkip={shared.onSkip}
+      />
+    </LessonShell>
+  );
+};
+
+const ProblemWriteInSpanish = ({
+  problem,
+  selectedAnswers,
+  setSelectedAnswers,
+  ...shared
+}: SharedProblemProps & {
+  problem: Extract<Problem, { type: "WRITE_IN_SPANISH" }>;
+  selectedAnswers: number[];
+  setSelectedAnswers: React.Dispatch<React.SetStateAction<number[]>>;
+}) => {
+  return (
+    <LessonShell
+      correctAnswerCount={shared.correctAnswerCount}
+      totalCorrectAnswersNeeded={shared.totalCorrectAnswersNeeded}
+      setQuitMessageShown={shared.setQuitMessageShown}
+      hearts={shared.hearts}
+      quitMessageShown={shared.quitMessageShown}
+    >
+      <Wordbank
+        problem={problem}
+        selectedAnswers={selectedAnswers}
+        setSelectedAnswers={setSelectedAnswers}
+        promptHeader="Write this in Spanish"
+        questionText={problem.questionEn}
+      />
+      <CheckAnswer
+        correctAnswer={tilesToString(problem.answerTiles, problem.correctAnswer)}
+        correctAnswerShown={shared.correctAnswerShown}
+        isAnswerCorrect={shared.isAnswerCorrect}
+        isAnswerSelected={shared.isAnswerSelected}
+        onCheckAnswer={shared.onCheckAnswer}
+        onFinish={shared.onFinish}
+        onSkip={shared.onSkip}
+      />
+    </LessonShell>
+  );
+};
+
+const ProblemFreeWriteEs = ({
+  problem,
+  typedAnswer,
+  setTypedAnswer,
+  ...shared
+}: SharedProblemProps & {
+  problem: Extract<Problem, { type: "FREE_WRITE_ES" }>;
+  typedAnswer: string;
+  setTypedAnswer: React.Dispatch<React.SetStateAction<string>>;
+}) => {
+  return (
+    <LessonShell
+      correctAnswerCount={shared.correctAnswerCount}
+      totalCorrectAnswersNeeded={shared.totalCorrectAnswersNeeded}
+      setQuitMessageShown={shared.setQuitMessageShown}
+      hearts={shared.hearts}
+      quitMessageShown={shared.quitMessageShown}
+    >
+      <section className="flex max-w-2xl grow flex-col gap-5 self-center sm:items-center sm:justify-center sm:gap-12 sm:px-5">
+        <h1 className="self-start text-2xl font-bold sm:text-3xl">
+          Write this in Spanish
+        </h1>
+        <div className="w-full rounded-2xl border-2 border-gray-200 p-4">
+          <p className="text-lg">{problem.questionEn}</p>
+          {problem.hint && (
+            <p className="mt-2 text-sm italic text-gray-500">
+              Tip: {problem.hint}
+            </p>
+          )}
+        </div>
+        <textarea
+          className="w-full rounded-2xl border-2 border-gray-200 p-4 text-lg focus:border-blue-400 focus:outline-none"
+          rows={3}
+          autoFocus
+          lang="es"
+          placeholder="Escribe en español…"
+          value={typedAnswer}
+          onChange={(e) => setTypedAnswer(e.target.value)}
+          disabled={shared.correctAnswerShown}
+        />
+      </section>
+      <CheckAnswer
+        correctAnswer={problem.acceptableAnswers[0] ?? ""}
+        correctAnswerShown={shared.correctAnswerShown}
+        isAnswerCorrect={shared.isAnswerCorrect}
+        isAnswerSelected={shared.isAnswerSelected}
+        onCheckAnswer={shared.onCheckAnswer}
+        onFinish={shared.onFinish}
+        onSkip={shared.onSkip}
+      />
+    </LessonShell>
+  );
+};
+
+const SpeakerButton = ({
+  text,
+  className,
+}: {
+  text: string;
+  className?: string;
+}) => {
+  const ttsReady = useTtsReady();
+  return (
+    <button
+      type="button"
+      onClick={() => void speakSpanish(text)}
+      disabled={!ttsReady}
+      className={
+        className ??
+        "rounded-full border-b-4 border-blue-600 bg-blue-500 px-6 py-4 text-2xl font-bold text-white transition hover:brightness-110 disabled:opacity-50"
+      }
+      aria-label="Play audio"
+    >
+      🔊
+    </button>
+  );
+};
+
+const ProblemListen = ({
+  problem,
+  typedAnswer,
+  setTypedAnswer,
+  ...shared
+}: SharedProblemProps & {
+  problem: Extract<Problem, { type: "LISTEN" }>;
+  typedAnswer: string;
+  setTypedAnswer: React.Dispatch<React.SetStateAction<string>>;
+}) => {
+  const ttsReady = useTtsReady();
+  const playedRef = useRef(false);
+  useEffect(() => {
+    if (ttsReady && !playedRef.current) {
+      playedRef.current = true;
+      void speakSpanish(problem.tts);
+    }
+  }, [ttsReady, problem.tts]);
 
   return (
-    <div className="flex min-h-screen flex-col gap-5 px-4 py-5 sm:px-0 sm:py-0">
-      <div className="flex grow flex-col items-center gap-5">
-        <div className="w-full max-w-5xl sm:mt-8 sm:px-5">
-          <ProgressBar
-            correctAnswerCount={correctAnswerCount}
-            totalCorrectAnswersNeeded={totalCorrectAnswersNeeded}
-            setQuitMessageShown={setQuitMessageShown}
-            hearts={hearts}
-          />
+    <LessonShell
+      correctAnswerCount={shared.correctAnswerCount}
+      totalCorrectAnswersNeeded={shared.totalCorrectAnswersNeeded}
+      setQuitMessageShown={shared.setQuitMessageShown}
+      hearts={shared.hearts}
+      quitMessageShown={shared.quitMessageShown}
+    >
+      <section className="flex max-w-2xl grow flex-col gap-8 self-center sm:items-center sm:justify-center sm:gap-12 sm:px-5">
+        <h1 className="self-start text-2xl font-bold sm:text-3xl">
+          Type what you hear
+        </h1>
+        <div className="flex flex-col items-center gap-3">
+          <SpeakerButton text={problem.tts} />
+          <button
+            type="button"
+            onClick={() => void speakSpanish(problem.tts, 0.7)}
+            className="text-sm uppercase text-blue-400"
+          >
+            🐢 Slow
+          </button>
         </div>
-        <section className="flex max-w-2xl grow flex-col gap-5 self-center sm:items-center sm:justify-center sm:gap-24">
-          <h1 className="mb-2 text-2xl font-bold sm:text-3xl">
-            Write this in English
-          </h1>
-
-          <div className="w-full">
-            <div className="flex items-center gap-2 px-2">
-              <Image src={womanPng} alt="" width={92} height={115} />
-              <div className="relative ml-2 w-fit rounded-2xl border-2 border-gray-200 p-4">
-                {question}
-                <div
-                  className="absolute h-4 w-4 rotate-45 border-b-2 border-l-2 border-gray-200 bg-white"
-                  style={{
-                    top: "calc(50% - 8px)",
-                    left: "-10px",
-                  }}
-                ></div>
-              </div>
-            </div>
-
-            <div className="flex min-h-[60px] flex-wrap gap-1 border-b-2 border-t-2 border-gray-200 py-1">
-              {selectedAnswers.map((i) => {
-                return (
-                  <button
-                    key={i}
-                    className="rounded-2xl border-2 border-b-4 border-gray-200 p-2 text-gray-700"
-                    onClick={() => {
-                      setSelectedAnswers((selectedAnswers) => {
-                        return selectedAnswers.filter((x) => x !== i);
-                      });
-                    }}
-                  >
-                    {answerTiles[i]}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          <div className="flex flex-wrap justify-center gap-1">
-            {answerTiles.map((answerTile, i) => {
-              return (
-                <button
-                  key={i}
-                  className={
-                    selectedAnswers.includes(i)
-                      ? "rounded-2xl border-2 border-b-4 border-gray-200 bg-gray-200 p-2 text-gray-200"
-                      : "rounded-2xl border-2 border-b-4 border-gray-200 p-2 text-gray-700"
-                  }
-                  disabled={selectedAnswers.includes(i)}
-                  onClick={() =>
-                    setSelectedAnswers((selectedAnswers) => {
-                      if (selectedAnswers.includes(i)) {
-                        return selectedAnswers;
-                      }
-                      return [...selectedAnswers, i];
-                    })
-                  }
-                >
-                  {answerTile}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      </div>
-
+        <textarea
+          className="w-full rounded-2xl border-2 border-gray-200 p-4 text-lg focus:border-blue-400 focus:outline-none"
+          rows={2}
+          autoFocus
+          lang="es"
+          placeholder="Escribe lo que oyes…"
+          value={typedAnswer}
+          onChange={(e) => setTypedAnswer(e.target.value)}
+          disabled={shared.correctAnswerShown}
+        />
+        {shared.correctAnswerShown && (
+          <p className="text-sm text-gray-500">
+            Translation: {problem.translationEn}
+          </p>
+        )}
+      </section>
       <CheckAnswer
-        correctAnswer={correctAnswer.map((i) => answerTiles[i]).join(" ")}
-        correctAnswerShown={correctAnswerShown}
-        isAnswerCorrect={isAnswerCorrect}
-        isAnswerSelected={selectedAnswers.length > 0}
-        onCheckAnswer={onCheckAnswer}
-        onFinish={onFinish}
-        onSkip={onSkip}
+        correctAnswer={problem.acceptableAnswers[0] ?? problem.tts}
+        correctAnswerShown={shared.correctAnswerShown}
+        isAnswerCorrect={shared.isAnswerCorrect}
+        isAnswerSelected={shared.isAnswerSelected}
+        onCheckAnswer={shared.onCheckAnswer}
+        onFinish={shared.onFinish}
+        onSkip={shared.onSkip}
       />
+    </LessonShell>
+  );
+};
 
-      <QuitMessage
-        quitMessageShown={quitMessageShown}
-        setQuitMessageShown={setQuitMessageShown}
+const ProblemSpeak = ({
+  problem,
+  spokenAnswer,
+  setSpokenAnswer,
+  ...shared
+}: SharedProblemProps & {
+  problem: Extract<Problem, { type: "SPEAK" }>;
+  spokenAnswer: string;
+  setSpokenAnswer: React.Dispatch<React.SetStateAction<string>>;
+}) => {
+  const speech = useSpeechRecognition("es-ES");
+
+  useEffect(() => {
+    if (speech.transcript) setSpokenAnswer(speech.transcript);
+  }, [speech.transcript, setSpokenAnswer]);
+
+  const unsupported = speech.state === "unsupported";
+
+  return (
+    <LessonShell
+      correctAnswerCount={shared.correctAnswerCount}
+      totalCorrectAnswersNeeded={shared.totalCorrectAnswersNeeded}
+      setQuitMessageShown={shared.setQuitMessageShown}
+      hearts={shared.hearts}
+      quitMessageShown={shared.quitMessageShown}
+    >
+      <section className="flex max-w-2xl grow flex-col gap-8 self-center sm:items-center sm:justify-center sm:gap-12 sm:px-5">
+        <h1 className="self-start text-2xl font-bold sm:text-3xl">
+          Speak in Spanish
+        </h1>
+        <div className="w-full rounded-2xl border-2 border-gray-200 p-4">
+          <p className="text-lg">{problem.questionEn}</p>
+          <p className="mt-2 text-sm text-gray-500">
+            Target: <span className="italic">{problem.targetEs}</span>
+          </p>
+          <div className="mt-2">
+            <SpeakerButton
+              text={problem.targetEs}
+              className="rounded-full border-b-2 border-blue-600 bg-blue-500 px-3 py-1 text-sm text-white"
+            />
+          </div>
+        </div>
+
+        {unsupported ? (
+          <div className="rounded-2xl border-2 border-yellow-300 bg-yellow-50 p-4 text-sm">
+            Your browser does not support speech recognition. Type the phrase
+            instead:
+            <input
+              className="mt-2 w-full rounded-xl border-2 border-gray-200 p-2"
+              value={spokenAnswer}
+              onChange={(e) => setSpokenAnswer(e.target.value)}
+              disabled={shared.correctAnswerShown}
+              lang="es"
+            />
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-3">
+            <button
+              type="button"
+              onClick={() =>
+                speech.state === "listening" ? speech.stop() : speech.start()
+              }
+              disabled={shared.correctAnswerShown}
+              className={
+                speech.state === "listening"
+                  ? "rounded-full border-b-4 border-red-600 bg-red-500 px-8 py-4 text-xl font-bold text-white animate-pulse"
+                  : "rounded-full border-b-4 border-green-600 bg-green-500 px-8 py-4 text-xl font-bold text-white transition hover:brightness-110 disabled:opacity-50"
+              }
+            >
+              {speech.state === "listening" ? "🎙️ Listening… (tap to stop)" : "🎙️ Tap to speak"}
+            </button>
+            {speech.errorMessage && (
+              <p className="text-sm text-red-500">
+                Mic error: {speech.errorMessage}
+              </p>
+            )}
+            <p className="min-h-[2rem] text-center text-lg">
+              {spokenAnswer ? (
+                <span className="text-gray-800">"{spokenAnswer}"</span>
+              ) : (
+                <span className="text-gray-400">Your speech appears here…</span>
+              )}
+            </p>
+          </div>
+        )}
+      </section>
+      <CheckAnswer
+        correctAnswer={problem.targetEs}
+        correctAnswerShown={shared.correctAnswerShown}
+        isAnswerCorrect={shared.isAnswerCorrect}
+        isAnswerSelected={shared.isAnswerSelected}
+        onCheckAnswer={shared.onCheckAnswer}
+        onFinish={shared.onFinish}
+        onSkip={shared.onSkip}
       />
-    </div>
+    </LessonShell>
   );
 };
 
@@ -675,7 +986,7 @@ const LessonComplete = ({
     <div className="flex min-h-screen flex-col gap-5 px-4 py-5 sm:px-0 sm:py-0">
       <div className="flex grow flex-col items-center justify-center gap-8 font-bold">
         <h1 className="text-center text-3xl text-yellow-400">
-          Lesson Complete!
+          ¡Lección completada!
         </h1>
         <div className="flex flex-wrap justify-center gap-5">
           <div className="min-w-[110px] rounded-xl border-2 border-yellow-400 bg-yellow-400">
@@ -695,7 +1006,7 @@ const LessonComplete = ({
             <div className="flex justify-center rounded-xl bg-white py-4 text-green-400">
               {Math.round(
                 (correctAnswerCount /
-                  (correctAnswerCount + incorrectAnswerCount)) *
+                  Math.max(1, correctAnswerCount + incorrectAnswerCount)) *
                   100,
               )}
               %
@@ -783,12 +1094,15 @@ const ReviewLesson = ({
         </p>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {questionResults.map((questionResult, i) => {
+            const matched =
+              normalizeSpanish(questionResult.yourResponse) ===
+              normalizeSpanish(questionResult.correctResponse);
             return (
               <button
                 key={i}
                 className={[
                   "relative flex flex-col items-stretch gap-3 rounded-xl p-5 text-left",
-                  questionResult.yourResponse === questionResult.correctResponse
+                  matched
                     ? "bg-yellow-100 text-yellow-600"
                     : "bg-red-100 text-red-500",
                 ].join(" ")}
@@ -803,8 +1117,7 @@ const ReviewLesson = ({
                 <div className="flex justify-between gap-2">
                   <h3 className="font-bold">{questionResult.question}</h3>
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white">
-                    {questionResult.yourResponse ===
-                    questionResult.correctResponse ? (
+                    {matched ? (
                       <DoneSvg className="h-5 w-5" />
                     ) : (
                       <BigCloseSvg className="h-5 w-5" />

@@ -278,7 +278,7 @@ const TileTooltip = ({
         </div>
         {status === "ACTIVE" ? (
           <Link
-            href="/lesson"
+            href={`/lesson?unit=${unitNumber}&tile=${index}`}
             className={[
               "flex w-full items-center justify-center rounded-xl border-b-4 border-gray-200 bg-white p-3 uppercase",
               activeTextColor,
@@ -295,7 +295,7 @@ const TileTooltip = ({
           </button>
         ) : (
           <Link
-            href="/lesson"
+            href={`/lesson?unit=${unitNumber}&tile=${index}&practice`}
             className="flex w-full items-center justify-center rounded-xl border-b-4 border-yellow-200 bg-white p-3 uppercase text-yellow-400"
           >
             Practice +5 XP
@@ -393,7 +393,7 @@ const UnitSection = ({ unit }: { unit: Unit }): JSX.Element => {
                               status === "LOCKED"
                             ) {
                               void router.push(
-                                `/lesson?fast-forward=${unit.unitNumber}`,
+                                `/lesson?unit=${unit.unitNumber}&tile=${i}&fast-forward=${unit.unitNumber}`,
                               );
                               return;
                             }
