@@ -137,7 +137,9 @@ const Lesson: NextPage = () => {
     setTypedAnswer("");
     setSpokenAnswer("");
     setCorrectAnswerShown(false);
-    setLessonProblemIndex((x) => x + 1);
+    setLessonProblemIndex((x) =>
+      lesson.problems.length === 0 ? 0 : (x + 1) % lesson.problems.length,
+    );
     endTime.current = Date.now();
   };
 
