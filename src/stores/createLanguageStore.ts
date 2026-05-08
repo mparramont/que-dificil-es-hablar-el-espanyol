@@ -6,9 +6,7 @@ export type LanguageSlice = {
   setLanguage: (newLanguage: Language) => void;
 };
 
-const spanishLanguageIndex = 6;
-
 export const createLanguageSlice: BoundStateCreator<LanguageSlice> = (set) => ({
-  language: languages[spanishLanguageIndex],
+  language: languages[0],
   setLanguage: (newLanguage: Language) => set({ language: newLanguage }),
 });

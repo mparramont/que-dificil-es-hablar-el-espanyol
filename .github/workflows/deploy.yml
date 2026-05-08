@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - claude/custom-duolingo-spain-spanish-zIPlk
+      - claude/fix-github-pages-deploy-TDmFl
       - main
+  workflow_dispatch:
 
 permissions:
   contents: read

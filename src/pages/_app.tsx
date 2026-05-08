@@ -7,10 +7,10 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   return (
     <>
       <Head>
-        <title>React Duolingo Clone</title>
+        <title>¡Qué difícil es hablar el español!</title>
         <meta
           name="description"
-          content="Duolingo web app clone written with React"
+          content="Custom Spanish (Spain) course for B1 learners — listening, writing, and speaking exercises."
         />
         <link rel="icon" href="/favicon.ico" />
         <meta name="theme-color" content="#0A0" />
