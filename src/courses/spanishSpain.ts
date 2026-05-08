@@ -1,4 +1,59 @@
 import type { CourseContent, Lesson, Problem } from "./types";
+import {
+  a1u1Saludos,
+  a1u1SoyDe,
+  a1u1Numeros,
+  a1u1Familia,
+  a1u1Review,
+  a1u2Pedir,
+  a1u2Cuenta,
+  a1u2Comida,
+  a1u2Cuanto,
+  a1u2Review,
+} from "./levels/a1";
+import {
+  a2u3Rutina,
+  a2u3Barrio,
+  a2u3Hora,
+  a2u3Indicaciones,
+  a2u3Review,
+  a2u4Tienda,
+  a2u4Ropa,
+  a2u4Hotel,
+  a2u4Verano,
+  a2u4Review,
+} from "./levels/a2";
+import {
+  b2u8Defender,
+  b2u8Aunque,
+  b2u8Discrepar,
+  b2u8Pluscuamp,
+  b2u8Review,
+  b2u9Regiones,
+  b2u9Tradiciones,
+  b2u9Sobremesa,
+  b2u9Politica,
+  b2u9Review,
+} from "./levels/b2";
+import {
+  c1u10Registro,
+  c1u10Modismos,
+  c1u10Conectores,
+  c1u10Ironia,
+  c1u10Review,
+  c1u11Entrevista,
+  c1u11Reuniones,
+  c1u11Negociar,
+  c1u11Curriculum,
+  c1u11Review,
+} from "./levels/c1";
+import {
+  c2u12Literaria,
+  c2u12Editorial,
+  c2u12Academico,
+  c2u12Filosofar,
+  c2u12Review,
+} from "./levels/c2";
 
 const u1t0: Lesson = {
   title: "Saludos y presentaciones",
@@ -780,14 +835,45 @@ export const defaultLesson: Lesson = defaultPractice;
 
 export const courseContent: CourseContent = {
   1: {
-    0: u1t0,
-    1: u1t1,
-    2: u1t2,
-    4: u1t4,
-    5: u1t5,
+    0: a1u1Saludos,
+    1: a1u1SoyDe,
+    2: a1u1Numeros,
+    4: a1u1Familia,
+    5: a1u1Review,
   },
   2: {
-    0: u2t2, // fast-forward uses content equivalent to a unit lesson
+    0: a1u2Pedir,
+    1: a1u2Cuenta,
+    2: a1u2Comida,
+    4: a1u2Cuanto,
+    5: a1u2Review,
+  },
+  3: {
+    0: a2u3Rutina, // fast-forward
+    1: a2u3Rutina,
+    2: a2u3Barrio,
+    4: a2u3Hora,
+    5: a2u3Indicaciones,
+    6: a2u3Review,
+  },
+  4: {
+    0: a2u4Tienda,
+    1: a2u4Tienda,
+    2: a2u4Ropa,
+    4: a2u4Hotel,
+    5: a2u4Verano,
+    6: a2u4Review,
+  },
+  5: {
+    0: u1t0, // fast-forward — uses lesson content for the test
+    1: u1t0,
+    2: u1t1,
+    3: u1t2,
+    5: u1t4,
+    6: u1t5,
+  },
+  6: {
+    0: u2t2, // fast-forward
     1: defaultPractice,
     2: u2t2,
     4: u2t4,
@@ -797,7 +883,7 @@ export const courseContent: CourseContent = {
     9: defaultPractice,
     10: u2t10,
   },
-  3: {
+  7: {
     0: u3t1,
     1: u3t1,
     2: u3t2,
@@ -806,6 +892,46 @@ export const courseContent: CourseContent = {
     7: defaultPractice,
     8: u3t8,
     9: u3t9,
+  },
+  8: {
+    0: b2u8Defender,
+    1: b2u8Defender,
+    2: b2u8Aunque,
+    4: b2u8Discrepar,
+    5: b2u8Pluscuamp,
+    6: b2u8Review,
+  },
+  9: {
+    0: b2u9Regiones,
+    1: b2u9Regiones,
+    2: b2u9Tradiciones,
+    4: b2u9Sobremesa,
+    5: b2u9Politica,
+    6: b2u9Review,
+  },
+  10: {
+    0: c1u10Registro,
+    1: c1u10Registro,
+    2: c1u10Modismos,
+    4: c1u10Conectores,
+    5: c1u10Ironia,
+    6: c1u10Review,
+  },
+  11: {
+    0: c1u11Entrevista,
+    1: c1u11Entrevista,
+    2: c1u11Reuniones,
+    4: c1u11Negociar,
+    5: c1u11Curriculum,
+    6: c1u11Review,
+  },
+  12: {
+    0: c2u12Literaria,
+    1: c2u12Literaria,
+    2: c2u12Editorial,
+    4: c2u12Academico,
+    5: c2u12Filosofar,
+    6: c2u12Review,
   },
 };
 
