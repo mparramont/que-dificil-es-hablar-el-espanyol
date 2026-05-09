@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+type SpeechRecognitionAlt = { transcript: string };
+type SpeechRecognitionRes = ArrayLike<SpeechRecognitionAlt> & {
+  isFinal?: boolean;
+};
+type SpeechRecognitionEventLike = {
+  results: ArrayLike<SpeechRecognitionRes>;
+  resultIndex?: number;
+};
+
 type SpeechRecognitionLike = {
   lang: string;
   interimResults: boolean;
@@ -8,8 +17,8 @@ type SpeechRecognitionLike = {
   start: () => void;
   stop: () => void;
   abort: () => void;
-  onresult: ((event: { results: ArrayLike<{ 0: { transcript: string } } & ArrayLike<{ transcript: string }>> }) => void) | null;
-  onerror: ((event: { error: string }) => void) | null;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onerror: ((event: { error: string; message?: string }) => void) | null;
   onend: (() => void) | null;
 };
 
@@ -21,6 +30,26 @@ declare global {
     webkitSpeechRecognition?: SpeechRecognitionConstructor;
   }
 }
+
+const friendlyError = (code: string): string => {
+  switch (code) {
+    case "not-allowed":
+    case "service-not-allowed":
+      return "Microphone permission denied. Allow it in your browser/OS settings.";
+    case "no-speech":
+      return "No speech detected — try again, closer to the mic.";
+    case "audio-capture":
+      return "No microphone found.";
+    case "network":
+      return "Network error reaching the speech service. Try again.";
+    case "aborted":
+      return "Recognition stopped.";
+    case "language-not-supported":
+      return "This language isn't supported by your browser's recognizer.";
+    default:
+      return code ? `Mic error: ${code}` : "Unknown microphone error.";
+  }
+};
 
 const getSpeechRecognition = (): SpeechRecognitionConstructor | null => {
   if (typeof window === "undefined") return null;
@@ -101,17 +130,21 @@ export function useSpeechRecognition(lang = "es-ES") {
     setErrorMessage(null);
     const recognition = new Ctor();
     recognition.lang = lang;
-    recognition.interimResults = false;
+    recognition.interimResults = true;
     recognition.continuous = false;
     recognition.maxAlternatives = 3;
     recognition.onresult = (event) => {
-      const result = event.results[0];
-      if (!result) return;
-      const best = result[0]?.transcript ?? "";
-      setTranscript(best);
+      let pieces = "";
+      for (let i = 0; i < event.results.length; i++) {
+        const r = event.results[i];
+        if (!r) continue;
+        const alt = r[0];
+        if (alt) pieces += alt.transcript;
+      }
+      if (pieces) setTranscript(pieces);
     };
     recognition.onerror = (event) => {
-      setErrorMessage(event.error);
+      setErrorMessage(friendlyError(event.error));
       setState("error");
     };
     recognition.onend = () => {
@@ -121,8 +154,11 @@ export function useSpeechRecognition(lang = "es-ES") {
     setState("listening");
     try {
       recognition.start();
-    } catch {
-      setState("idle");
+    } catch (e) {
+      setErrorMessage(
+        e instanceof Error ? e.message : "Could not start microphone.",
+      );
+      setState("error");
     }
   }, [lang]);
 
@@ -140,6 +176,22 @@ export function useSpeechRecognition(lang = "es-ES") {
   return { state, transcript, errorMessage, start, stop, reset };
 }
 
+let t2sFn: ((s: string) => string) | null = null;
+let t2sLoadPromise: Promise<void> | null = null;
+
+export function preloadChineseConverter(): Promise<void> {
+  if (t2sFn) return Promise.resolve();
+  if (!t2sLoadPromise) {
+    t2sLoadPromise = import("opencc-js").then((m) => {
+      t2sFn = m.Converter({ from: "t", to: "cn" });
+    });
+  }
+  return t2sLoadPromise;
+}
+
+const isChineseLang = (lang: string | undefined) =>
+  !!lang && lang.toLowerCase().startsWith("zh");
+
 export function normalizeText(input: string): string {
   return input
     .toLowerCase()
@@ -150,27 +202,48 @@ export function normalizeText(input: string): string {
     .trim();
 }
 
+// Aggressive normalization for matching: also strip every whitespace,
+// useful for Chinese where word boundaries are not marked.
+function normalizeForMatch(input: string, lang?: string): string {
+  let n = normalizeText(input).replace(/\s+/g, "");
+  if (isChineseLang(lang) && t2sFn) {
+    // Map both inputs into the Simplified namespace so traditional
+    // and simplified are treated as equivalent. (Falls back gracefully
+    // before the converter is loaded.)
+    n = t2sFn(n);
+  }
+  return n;
+}
+
 export function answersMatch(
   input: string,
   accepted: readonly string[],
+  lang?: string,
 ): boolean {
-  const normalizedInput = normalizeText(input);
-  return accepted.some((a) => normalizeText(a) === normalizedInput);
+  const normalizedInput = normalizeForMatch(input, lang);
+  return accepted.some((a) => normalizeForMatch(a, lang) === normalizedInput);
 }
 
-export function speakingMatches(transcript: string, target: string): boolean {
-  const a = normalizeText(transcript);
-  const b = normalizeText(target);
+export function speakingMatches(
+  transcript: string,
+  target: string,
+  lang?: string,
+): boolean {
+  const a = normalizeForMatch(transcript, lang);
+  const b = normalizeForMatch(target, lang);
   if (a === b) return true;
-  const aWords = a.split(/\s+/).filter(Boolean);
-  const bWords = b.split(/\s+/).filter(Boolean);
-  if (bWords.length > 1) {
-    const matchedCount = bWords.filter((w) => aWords.includes(w)).length;
-    return matchedCount / bWords.length >= 0.8;
+  // For space-delimited languages, do word-level partial match.
+  const aWordsRaw = normalizeText(transcript).split(/\s+/).filter(Boolean);
+  const bWordsRaw = normalizeText(target).split(/\s+/).filter(Boolean);
+  if (bWordsRaw.length > 1 && !isChineseLang(lang)) {
+    const matchedCount = bWordsRaw.filter((w) =>
+      aWordsRaw.includes(w),
+    ).length;
+    return matchedCount / bWordsRaw.length >= 0.8;
   }
-  // Fallback to character-level (helps for non-space-delimited languages like Chinese).
-  const aChars = [...a.replace(/\s/g, "")];
-  const bChars = [...b.replace(/\s/g, "")];
+  // Fallback to character-level overlap (helps for Chinese).
+  const aChars = [...a];
+  const bChars = [...b];
   if (bChars.length === 0) return false;
   const aSet = new Set(aChars);
   const matchedCount = bChars.filter((c) => aSet.has(c)).length;
