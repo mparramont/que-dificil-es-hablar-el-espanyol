@@ -19,7 +19,7 @@ import { useActiveCourse } from "~/courses/registry";
 import type { Problem } from "~/courses/types";
 import {
   answersMatch,
-  normalizeText,
+  preloadChineseConverter,
   speakingMatches,
   speak,
   useSpeechRecognition,
@@ -42,10 +42,37 @@ const formatTime = (timeMs: number): string => {
 const tilesToString = (tiles: readonly string[], indices: readonly number[]) =>
   indices.map((i) => tiles[i] ?? "").join(" ");
 
+const stringHash = (s: string): number => {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = (h * 31 + s.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h) || 1;
+};
+
+const seededShuffle = <T,>(arr: readonly T[], seed: number): T[] => {
+  let s = seed;
+  const out = arr.slice();
+  for (let i = out.length - 1; i > 0; i--) {
+    s = (s * 9301 + 49297) % 233280;
+    const j = Math.floor((s / 233280) * (i + 1));
+    const tmp = out[i] as T;
+    out[i] = out[j] as T;
+    out[j] = tmp;
+  }
+  return out;
+};
+
 const Lesson: NextPage = () => {
   const router = useRouter();
 
   const course = useActiveCourse();
+
+  useEffect(() => {
+    if (course.ttsLang.toLowerCase().startsWith("zh")) {
+      void preloadChineseConverter();
+    }
+  }, [course.ttsLang]);
 
   const unitParam = router.query.unit;
   const tileParam = router.query.tile;
@@ -98,11 +125,23 @@ const Lesson: NextPage = () => {
         return userString.trim() === correctString.trim();
       }
       case "FREE_WRITE_TARGET":
-        return answersMatch(typedAnswer, problem.acceptableAnswers);
+        return answersMatch(
+          typedAnswer,
+          problem.acceptableAnswers,
+          course.ttsLang,
+        );
       case "LISTEN":
-        return answersMatch(typedAnswer, problem.acceptableAnswers);
+        return answersMatch(
+          typedAnswer,
+          problem.acceptableAnswers,
+          course.ttsLang,
+        );
       case "SPEAK":
-        return speakingMatches(spokenAnswer, problem.targetText);
+        return speakingMatches(
+          spokenAnswer,
+          problem.targetText,
+          course.ttsLang,
+        );
     }
   }, [problem, selectedAnswers, typedAnswer, spokenAnswer]);
 
@@ -588,6 +627,13 @@ const Wordbank = ({
   speakerText?: string;
 }) => {
   const { answerTiles } = problem;
+  // Shuffle the displayed tile order deterministically per problem so the
+  // answer isn't already arranged left-to-right. The underlying indices
+  // (used for correctness checking) are preserved.
+  const shuffledIndices = useMemo(() => {
+    const indices = answerTiles.map((_, i) => i);
+    return seededShuffle(indices, stringHash(answerTiles.join("|")));
+  }, [answerTiles]);
   return (
     <section className="flex max-w-2xl grow flex-col gap-5 self-center sm:items-center sm:justify-center sm:gap-24">
       <h1 className="mb-2 text-2xl font-bold sm:text-3xl">{promptHeader}</h1>
@@ -617,7 +663,7 @@ const Wordbank = ({
         </div>
       </div>
       <div className="flex flex-wrap justify-center gap-1">
-        {answerTiles.map((answerTile, i) => (
+        {shuffledIndices.map((i) => (
           <button
             key={i}
             className={
@@ -632,7 +678,7 @@ const Wordbank = ({
               )
             }
           >
-            {answerTile}
+            {answerTiles[i]}
           </button>
         ))}
       </div>
@@ -900,7 +946,7 @@ const ProblemSpeak = ({
     >
       <section className="flex max-w-2xl grow flex-col gap-8 self-center sm:items-center sm:justify-center sm:gap-12 sm:px-5">
         <h1 className="self-start text-2xl font-bold sm:text-3xl">
-          Speak in Spanish
+          Speak in {course.name}
         </h1>
         <div className="w-full rounded-2xl border-2 border-gray-200 p-4">
           <p className="text-lg">{problem.questionEn}</p>
@@ -915,20 +961,13 @@ const ProblemSpeak = ({
           </div>
         </div>
 
-        {unsupported ? (
-          <div className="rounded-2xl border-2 border-yellow-300 bg-yellow-50 p-4 text-sm">
-            Your browser does not support speech recognition. Type the phrase
-            instead:
-            <input
-              className="mt-2 w-full rounded-xl border-2 border-gray-200 p-2"
-              value={spokenAnswer}
-              onChange={(e) => setSpokenAnswer(e.target.value)}
-              disabled={shared.correctAnswerShown}
-              lang={course.ttsLang.split("-")[0] ?? "en"}
-            />
-          </div>
-        ) : (
-          <div className="flex flex-col items-center gap-3">
+        <div className="flex flex-col items-center gap-3">
+          {unsupported ? (
+            <p className="rounded-2xl border-2 border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-800">
+              Your browser does not support speech recognition — type the
+              phrase below instead.
+            </p>
+          ) : (
             <button
               type="button"
               onClick={() =>
@@ -941,22 +980,37 @@ const ProblemSpeak = ({
                   : "rounded-full border-b-4 border-green-600 bg-green-500 px-8 py-4 text-xl font-bold text-white transition hover:brightness-110 disabled:opacity-50"
               }
             >
-              {speech.state === "listening" ? "🎙️ Listening… (tap to stop)" : "🎙️ Tap to speak"}
+              {speech.state === "listening"
+                ? "🎙️ Listening… (tap to stop)"
+                : "🎙️ Tap to speak"}
             </button>
-            {speech.errorMessage && (
-              <p className="text-sm text-red-500">
-                Mic error: {speech.errorMessage}
-              </p>
+          )}
+          {speech.errorMessage && (
+            <p className="text-sm text-red-500">{speech.errorMessage}</p>
+          )}
+          <p className="min-h-[2rem] text-center text-lg">
+            {spokenAnswer ? (
+              <span className="text-gray-800">&ldquo;{spokenAnswer}&rdquo;</span>
+            ) : (
+              <span className="text-gray-400">
+                Your speech appears here…
+              </span>
             )}
-            <p className="min-h-[2rem] text-center text-lg">
-              {spokenAnswer ? (
-                <span className="text-gray-800">"{spokenAnswer}"</span>
-              ) : (
-                <span className="text-gray-400">Your speech appears here…</span>
-              )}
-            </p>
-          </div>
-        )}
+          </p>
+          <details className="w-full text-sm">
+            <summary className="cursor-pointer text-blue-500 hover:underline">
+              Type instead
+            </summary>
+            <input
+              className="mt-2 w-full rounded-xl border-2 border-gray-200 p-2"
+              value={spokenAnswer}
+              onChange={(e) => setSpokenAnswer(e.target.value)}
+              disabled={shared.correctAnswerShown}
+              lang={course.ttsLang.split("-")[0] ?? "en"}
+              placeholder={`Type the ${course.name} phrase…`}
+            />
+          </details>
+        </div>
       </section>
       <CheckAnswer
         correctAnswer={problem.targetText}
@@ -1079,6 +1133,7 @@ const ReviewLesson = ({
   setReviewLessonShown: React.Dispatch<React.SetStateAction<boolean>>;
   questionResults: QuestionResult[];
 }) => {
+  const course = useActiveCourse();
   const [selectedQuestionResult, setSelectedQuestionResult] =
     useState<null | QuestionResult>(null);
   return (
@@ -1109,9 +1164,11 @@ const ReviewLesson = ({
         </p>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {questionResults.map((questionResult, i) => {
-            const matched =
-              normalizeText(questionResult.yourResponse) ===
-              normalizeText(questionResult.correctResponse);
+            const matched = answersMatch(
+              questionResult.yourResponse,
+              [questionResult.correctResponse],
+              course.ttsLang,
+            );
             return (
               <button
                 key={i}
