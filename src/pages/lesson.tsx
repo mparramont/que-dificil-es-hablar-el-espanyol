@@ -15,13 +15,13 @@ import {
 import womanPng from "../../public/woman.png";
 import { useBoundStore } from "~/hooks/useBoundStore";
 import { useRouter } from "next/router";
-import { defaultLesson, getLesson } from "~/courses/spanishSpain";
+import { useActiveCourse } from "~/courses/registry";
 import type { Problem } from "~/courses/types";
 import {
   answersMatch,
-  normalizeSpanish,
+  normalizeText,
   speakingMatches,
-  speakSpanish,
+  speak,
   useSpeechRecognition,
   useTtsReady,
 } from "~/hooks/useSpeech";
@@ -45,15 +45,20 @@ const tilesToString = (tiles: readonly string[], indices: readonly number[]) =>
 const Lesson: NextPage = () => {
   const router = useRouter();
 
+  const course = useActiveCourse();
+
   const unitParam = router.query.unit;
   const tileParam = router.query.tile;
   const hasTileParams =
     typeof unitParam === "string" && typeof tileParam === "string";
 
   const lesson = useMemo(() => {
-    if (!hasTileParams) return defaultLesson;
-    return getLesson(Number(unitParam), Number(tileParam));
-  }, [hasTileParams, unitParam, tileParam]);
+    if (!hasTileParams) return course.defaultLesson;
+    return (
+      course.content[Number(unitParam)]?.[Number(tileParam)] ??
+      course.defaultLesson
+    );
+  }, [hasTileParams, unitParam, tileParam, course]);
 
   const [lessonProblemIndex, setLessonProblemIndex] = useState(0);
   const [correctAnswerCount, setCorrectAnswerCount] = useState(0);
@@ -84,7 +89,7 @@ const Lesson: NextPage = () => {
     if (!problem) return false;
     switch (problem.type) {
       case "WRITE_IN_ENGLISH":
-      case "WRITE_IN_SPANISH": {
+      case "WRITE_IN_TARGET": {
         const userString = tilesToString(problem.answerTiles, selectedAnswers);
         const correctString = tilesToString(
           problem.answerTiles,
@@ -92,12 +97,12 @@ const Lesson: NextPage = () => {
         );
         return userString.trim() === correctString.trim();
       }
-      case "FREE_WRITE_ES":
+      case "FREE_WRITE_TARGET":
         return answersMatch(typedAnswer, problem.acceptableAnswers);
       case "LISTEN":
         return answersMatch(typedAnswer, problem.acceptableAnswers);
       case "SPEAK":
-        return speakingMatches(spokenAnswer, problem.targetEs);
+        return speakingMatches(spokenAnswer, problem.targetText);
     }
   }, [problem, selectedAnswers, typedAnswer, spokenAnswer]);
 
@@ -105,9 +110,9 @@ const Lesson: NextPage = () => {
     if (!problem) return false;
     switch (problem.type) {
       case "WRITE_IN_ENGLISH":
-      case "WRITE_IN_SPANISH":
+      case "WRITE_IN_TARGET":
         return selectedAnswers.length > 0;
-      case "FREE_WRITE_ES":
+      case "FREE_WRITE_TARGET":
       case "LISTEN":
         return typedAnswer.trim().length > 0;
       case "SPEAK":
@@ -227,18 +232,18 @@ const Lesson: NextPage = () => {
           {...sharedProps}
         />
       );
-    case "WRITE_IN_SPANISH":
+    case "WRITE_IN_TARGET":
       return (
-        <ProblemWriteInSpanish
+        <ProblemWriteInTarget
           problem={problem}
           selectedAnswers={selectedAnswers}
           setSelectedAnswers={setSelectedAnswers}
           {...sharedProps}
         />
       );
-    case "FREE_WRITE_ES":
+    case "FREE_WRITE_TARGET":
       return (
-        <ProblemFreeWriteEs
+        <ProblemFreeWriteTarget
           problem={problem}
           typedAnswer={typedAnswer}
           setTypedAnswer={setTypedAnswer}
@@ -291,14 +296,14 @@ const buildQuestionResult = (
   switch (problem.type) {
     case "WRITE_IN_ENGLISH":
       return {
-        question: problem.questionEs,
+        question: problem.questionTarget,
         yourResponse: tilesToString(problem.answerTiles, selectedAnswers),
         correctResponse: tilesToString(
           problem.answerTiles,
           problem.correctAnswer,
         ),
       };
-    case "WRITE_IN_SPANISH":
+    case "WRITE_IN_TARGET":
       return {
         question: problem.questionEn,
         yourResponse: tilesToString(problem.answerTiles, selectedAnswers),
@@ -307,7 +312,7 @@ const buildQuestionResult = (
           problem.correctAnswer,
         ),
       };
-    case "FREE_WRITE_ES":
+    case "FREE_WRITE_TARGET":
       return {
         question: problem.questionEn,
         yourResponse: typedAnswer,
@@ -323,7 +328,7 @@ const buildQuestionResult = (
       return {
         question: problem.questionEn,
         yourResponse: spokenAnswer,
-        correctResponse: problem.targetEs,
+        correctResponse: problem.targetText,
       };
   }
 };
@@ -575,7 +580,7 @@ const Wordbank = ({
   questionText,
   speakerText,
 }: {
-  problem: Extract<Problem, { type: "WRITE_IN_ENGLISH" | "WRITE_IN_SPANISH" }>;
+  problem: Extract<Problem, { type: "WRITE_IN_ENGLISH" | "WRITE_IN_TARGET" }>;
   selectedAnswers: number[];
   setSelectedAnswers: React.Dispatch<React.SetStateAction<number[]>>;
   promptHeader: string;
@@ -658,7 +663,7 @@ const ProblemWriteInEnglish = ({
         selectedAnswers={selectedAnswers}
         setSelectedAnswers={setSelectedAnswers}
         promptHeader="Write this in English"
-        questionText={problem.questionEs}
+        questionText={problem.questionTarget}
       />
       <CheckAnswer
         correctAnswer={tilesToString(problem.answerTiles, problem.correctAnswer)}
@@ -673,16 +678,17 @@ const ProblemWriteInEnglish = ({
   );
 };
 
-const ProblemWriteInSpanish = ({
+const ProblemWriteInTarget = ({
   problem,
   selectedAnswers,
   setSelectedAnswers,
   ...shared
 }: SharedProblemProps & {
-  problem: Extract<Problem, { type: "WRITE_IN_SPANISH" }>;
+  problem: Extract<Problem, { type: "WRITE_IN_TARGET" }>;
   selectedAnswers: number[];
   setSelectedAnswers: React.Dispatch<React.SetStateAction<number[]>>;
 }) => {
+  const course = useActiveCourse();
   return (
     <LessonShell
       correctAnswerCount={shared.correctAnswerCount}
@@ -695,7 +701,7 @@ const ProblemWriteInSpanish = ({
         problem={problem}
         selectedAnswers={selectedAnswers}
         setSelectedAnswers={setSelectedAnswers}
-        promptHeader="Write this in Spanish"
+        promptHeader={`Write this in ${course.name}`}
         questionText={problem.questionEn}
       />
       <CheckAnswer
@@ -711,16 +717,20 @@ const ProblemWriteInSpanish = ({
   );
 };
 
-const ProblemFreeWriteEs = ({
+const ProblemFreeWriteTarget = ({
   problem,
   typedAnswer,
   setTypedAnswer,
   ...shared
 }: SharedProblemProps & {
-  problem: Extract<Problem, { type: "FREE_WRITE_ES" }>;
+  problem: Extract<Problem, { type: "FREE_WRITE_TARGET" }>;
   typedAnswer: string;
   setTypedAnswer: React.Dispatch<React.SetStateAction<string>>;
 }) => {
+  const course = useActiveCourse();
+  const writePrompt = `Write this in ${course.name}`;
+  const placeholder = `Write in ${course.name}…`;
+  const inputLang = course.ttsLang.split("-")[0] ?? "en";
   return (
     <LessonShell
       correctAnswerCount={shared.correctAnswerCount}
@@ -731,7 +741,7 @@ const ProblemFreeWriteEs = ({
     >
       <section className="flex max-w-2xl grow flex-col gap-5 self-center sm:items-center sm:justify-center sm:gap-12 sm:px-5">
         <h1 className="self-start text-2xl font-bold sm:text-3xl">
-          Write this in Spanish
+          {writePrompt}
         </h1>
         <div className="w-full rounded-2xl border-2 border-gray-200 p-4">
           <p className="text-lg">{problem.questionEn}</p>
@@ -745,8 +755,8 @@ const ProblemFreeWriteEs = ({
           className="w-full rounded-2xl border-2 border-gray-200 p-4 text-lg focus:border-blue-400 focus:outline-none"
           rows={3}
           autoFocus
-          lang="es"
-          placeholder="Escribe en español…"
+          lang={inputLang}
+          placeholder={placeholder}
           value={typedAnswer}
           onChange={(e) => setTypedAnswer(e.target.value)}
           disabled={shared.correctAnswerShown}
@@ -773,10 +783,11 @@ const SpeakerButton = ({
   className?: string;
 }) => {
   const ttsReady = useTtsReady();
+  const course = useActiveCourse();
   return (
     <button
       type="button"
-      onClick={() => void speakSpanish(text)}
+      onClick={() => void speak(text, course.ttsLang)}
       disabled={!ttsReady}
       className={
         className ??
@@ -800,13 +811,14 @@ const ProblemListen = ({
   setTypedAnswer: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   const ttsReady = useTtsReady();
+  const course = useActiveCourse();
   const playedRef = useRef(false);
   useEffect(() => {
     if (ttsReady && !playedRef.current) {
       playedRef.current = true;
-      void speakSpanish(problem.tts);
+      void speak(problem.tts, course.ttsLang);
     }
-  }, [ttsReady, problem.tts]);
+  }, [ttsReady, problem.tts, course.ttsLang]);
 
   return (
     <LessonShell
@@ -824,7 +836,7 @@ const ProblemListen = ({
           <SpeakerButton text={problem.tts} />
           <button
             type="button"
-            onClick={() => void speakSpanish(problem.tts, 0.7)}
+            onClick={() => void speak(problem.tts, course.ttsLang, 0.7)}
             className="text-sm uppercase text-blue-400"
           >
             🐢 Slow
@@ -834,8 +846,8 @@ const ProblemListen = ({
           className="w-full rounded-2xl border-2 border-gray-200 p-4 text-lg focus:border-blue-400 focus:outline-none"
           rows={2}
           autoFocus
-          lang="es"
-          placeholder="Escribe lo que oyes…"
+          lang={course.ttsLang.split("-")[0] ?? "en"}
+          placeholder="Type what you hear…"
           value={typedAnswer}
           onChange={(e) => setTypedAnswer(e.target.value)}
           disabled={shared.correctAnswerShown}
@@ -869,7 +881,8 @@ const ProblemSpeak = ({
   spokenAnswer: string;
   setSpokenAnswer: React.Dispatch<React.SetStateAction<string>>;
 }) => {
-  const speech = useSpeechRecognition("es-ES");
+  const course = useActiveCourse();
+  const speech = useSpeechRecognition(course.sttLang);
 
   useEffect(() => {
     if (speech.transcript) setSpokenAnswer(speech.transcript);
@@ -892,11 +905,11 @@ const ProblemSpeak = ({
         <div className="w-full rounded-2xl border-2 border-gray-200 p-4">
           <p className="text-lg">{problem.questionEn}</p>
           <p className="mt-2 text-sm text-gray-500">
-            Target: <span className="italic">{problem.targetEs}</span>
+            Target: <span className="italic">{problem.targetText}</span>
           </p>
           <div className="mt-2">
             <SpeakerButton
-              text={problem.targetEs}
+              text={problem.targetText}
               className="rounded-full border-b-2 border-blue-600 bg-blue-500 px-3 py-1 text-sm text-white"
             />
           </div>
@@ -911,7 +924,7 @@ const ProblemSpeak = ({
               value={spokenAnswer}
               onChange={(e) => setSpokenAnswer(e.target.value)}
               disabled={shared.correctAnswerShown}
-              lang="es"
+              lang={course.ttsLang.split("-")[0] ?? "en"}
             />
           </div>
         ) : (
@@ -946,7 +959,7 @@ const ProblemSpeak = ({
         )}
       </section>
       <CheckAnswer
-        correctAnswer={problem.targetEs}
+        correctAnswer={problem.targetText}
         correctAnswerShown={shared.correctAnswerShown}
         isAnswerCorrect={shared.isAnswerCorrect}
         isAnswerSelected={shared.isAnswerSelected}
@@ -1097,8 +1110,8 @@ const ReviewLesson = ({
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {questionResults.map((questionResult, i) => {
             const matched =
-              normalizeSpanish(questionResult.yourResponse) ===
-              normalizeSpanish(questionResult.correctResponse);
+              normalizeText(questionResult.yourResponse) ===
+              normalizeText(questionResult.correctResponse);
             return (
               <button
                 key={i}

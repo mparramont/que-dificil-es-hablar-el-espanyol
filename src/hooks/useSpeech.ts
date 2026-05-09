@@ -27,17 +27,22 @@ const getSpeechRecognition = (): SpeechRecognitionConstructor | null => {
   return window.SpeechRecognition ?? window.webkitSpeechRecognition ?? null;
 };
 
-const pickSpanishVoice = (): SpeechSynthesisVoice | null => {
+const pickVoice = (lang: string): SpeechSynthesisVoice | null => {
   if (typeof window === "undefined" || !window.speechSynthesis) return null;
   const voices = window.speechSynthesis.getVoices();
   if (voices.length === 0) return null;
-  const esES = voices.find((v) => v.lang === "es-ES");
-  if (esES) return esES;
-  const esStartsWith = voices.find((v) => v.lang.startsWith("es"));
-  return esStartsWith ?? null;
+  const exact = voices.find((v) => v.lang === lang);
+  if (exact) return exact;
+  const prefix = lang.split("-")[0] ?? lang;
+  const starts = voices.find((v) => v.lang.startsWith(prefix));
+  return starts ?? null;
 };
 
-export function speakSpanish(text: string, rate = 0.95): Promise<void> {
+export function speak(
+  text: string,
+  lang: string,
+  rate = 0.95,
+): Promise<void> {
   return new Promise((resolve) => {
     if (typeof window === "undefined" || !window.speechSynthesis) {
       resolve();
@@ -45,9 +50,9 @@ export function speakSpanish(text: string, rate = 0.95): Promise<void> {
     }
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    const voice = pickSpanishVoice();
+    const voice = pickVoice(lang);
     if (voice) utterance.voice = voice;
-    utterance.lang = "es-ES";
+    utterance.lang = lang;
     utterance.rate = rate;
     utterance.onend = () => resolve();
     utterance.onerror = () => resolve();
@@ -135,28 +140,39 @@ export function useSpeechRecognition(lang = "es-ES") {
   return { state, transcript, errorMessage, start, stop, reset };
 }
 
-export function normalizeSpanish(input: string): string {
+export function normalizeText(input: string): string {
   return input
     .toLowerCase()
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
-    .replace(/[¿?¡!.,;:"]/g, "")
+    .replace(/[¿?¡!.,;:"。,?!、:""'']/g, "")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-export function answersMatch(input: string, accepted: readonly string[]): boolean {
-  const normalizedInput = normalizeSpanish(input);
-  return accepted.some((a) => normalizeSpanish(a) === normalizedInput);
+export function answersMatch(
+  input: string,
+  accepted: readonly string[],
+): boolean {
+  const normalizedInput = normalizeText(input);
+  return accepted.some((a) => normalizeText(a) === normalizedInput);
 }
 
 export function speakingMatches(transcript: string, target: string): boolean {
-  const a = normalizeSpanish(transcript);
-  const b = normalizeSpanish(target);
+  const a = normalizeText(transcript);
+  const b = normalizeText(target);
   if (a === b) return true;
-  const aWords = a.split(" ").filter(Boolean);
-  const bWords = b.split(" ").filter(Boolean);
-  if (bWords.length === 0) return false;
-  const matchedCount = bWords.filter((w) => aWords.includes(w)).length;
-  return matchedCount / bWords.length >= 0.8;
+  const aWords = a.split(/\s+/).filter(Boolean);
+  const bWords = b.split(/\s+/).filter(Boolean);
+  if (bWords.length > 1) {
+    const matchedCount = bWords.filter((w) => aWords.includes(w)).length;
+    return matchedCount / bWords.length >= 0.8;
+  }
+  // Fallback to character-level (helps for non-space-delimited languages like Chinese).
+  const aChars = [...a.replace(/\s/g, "")];
+  const bChars = [...b.replace(/\s/g, "")];
+  if (bChars.length === 0) return false;
+  const aSet = new Set(aChars);
+  const matchedCount = bChars.filter((c) => aSet.has(c)).length;
+  return matchedCount / bChars.length >= 0.7;
 }

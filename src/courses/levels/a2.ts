@@ -4,7 +4,7 @@ export const a2u3Rutina: Lesson = {
   title: "A2 · Mi rutina diaria",
   problems: [
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "I get up at seven and have breakfast.",
       answerTiles: [
         "Me",
@@ -26,7 +26,7 @@ export const a2u3Rutina: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Después de comer, echamos la siesta.",
+      questionTarget: "Después de comer, echamos la siesta.",
       answerTiles: [
         "After",
         "lunch,",
@@ -38,7 +38,7 @@ export const a2u3Rutina: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: I work from home on Mondays.",
       acceptableAnswers: [
         "trabajo desde casa los lunes",
@@ -48,7 +48,7 @@ export const a2u3Rutina: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: I go to bed early.",
-      targetEs: "Me acuesto pronto.",
+      targetText: "Me acuesto pronto.",
     },
   ],
 };
@@ -57,7 +57,7 @@ export const a2u3Barrio: Lesson = {
   title: "A2 · El barrio",
   problems: [
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "There is a supermarket on my street.",
       answerTiles: [
         "Hay",
@@ -79,12 +79,12 @@ export const a2u3Barrio: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "El bar de abajo siempre está lleno.",
+      questionTarget: "El bar de abajo siempre está lleno.",
       answerTiles: ["The", "bar", "downstairs", "is", "always", "full."],
       correctAnswer: [0, 1, 2, 3, 4, 5],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: The pharmacy is on the corner.",
       acceptableAnswers: [
         "la farmacia está en la esquina",
@@ -93,7 +93,7 @@ export const a2u3Barrio: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: I love my neighborhood.",
-      targetEs: "Me encanta mi barrio.",
+      targetText: "Me encanta mi barrio.",
     },
   ],
 };
@@ -102,7 +102,7 @@ export const a2u3Hora: Lesson = {
   title: "A2 · Hora y horarios",
   problems: [
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "What time is it?",
       answerTiles: ["¿Qué", "Cómo", "hora", "es?", "son?"],
       correctAnswer: [0, 2, 3],
@@ -118,7 +118,7 @@ export const a2u3Hora: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "La tienda abre a las diez y cierra a las nueve.",
+      questionTarget: "La tienda abre a las diez y cierra a las nueve.",
       answerTiles: [
         "The",
         "shop",
@@ -133,7 +133,7 @@ export const a2u3Hora: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7, 8],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: It's a quarter past three.",
       acceptableAnswers: [
         "son las tres y cuarto",
@@ -142,7 +142,7 @@ export const a2u3Hora: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: The film starts at eight.",
-      targetEs: "La película empieza a las ocho.",
+      targetText: "La película empieza a las ocho.",
     },
   ],
 };
@@ -151,7 +151,7 @@ export const a2u3Indicaciones: Lesson = {
   title: "A2 · Pedir indicaciones",
   problems: [
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "Where is the metro station?",
       answerTiles: [
         "¿Dónde",
@@ -175,19 +175,19 @@ export const a2u3Indicaciones: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Está a cinco minutos andando.",
+      questionTarget: "Está a cinco minutos andando.",
       answerTiles: ["It's", "five", "minutes", "on", "foot."],
       correctAnswer: [0, 1, 2, 3, 4],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: It's far from here.",
       acceptableAnswers: ["está lejos de aquí"],
     },
     {
       type: "SPEAK",
       questionEn: "Say: Excuse me, where is the train station?",
-      targetEs: "Perdone, ¿dónde está la estación de tren?",
+      targetText: "Perdone, ¿dónde está la estación de tren?",
     },
   ],
 };
@@ -196,7 +196,7 @@ export const a2u3Review: Lesson = {
   title: "A2 · Unit 3 review",
   problems: [
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: I take the metro every morning.",
       acceptableAnswers: [
         "cojo el metro todas las mañanas",
@@ -214,11 +214,11 @@ export const a2u3Review: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: Turn left at the traffic light.",
-      targetEs: "Gira a la izquierda en el semáforo.",
+      targetText: "Gira a la izquierda en el semáforo.",
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Antes de ir al trabajo, paseo al perro.",
+      questionTarget: "Antes de ir al trabajo, paseo al perro.",
       answerTiles: [
         "Before",
         "going",
@@ -238,7 +238,7 @@ export const a2u4Tienda: Lesson = {
   title: "A2 · En la tienda",
   problems: [
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "Can I try this on?",
       answerTiles: [
         "¿Puedo",
@@ -257,7 +257,7 @@ export const a2u4Tienda: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Quería devolver esto, no me funciona.",
+      questionTarget: "Quería devolver esto, no me funciona.",
       answerTiles: [
         "I'd",
         "like",
@@ -273,14 +273,14 @@ export const a2u4Tienda: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: Do you accept card?",
       acceptableAnswers: ["¿aceptan tarjeta?", "aceptan tarjeta", "¿se puede pagar con tarjeta?"],
     },
     {
       type: "SPEAK",
       questionEn: "Say: I'm just looking, thanks.",
-      targetEs: "Solo estoy mirando, gracias.",
+      targetText: "Solo estoy mirando, gracias.",
     },
   ],
 };
@@ -289,7 +289,7 @@ export const a2u4Ropa: Lesson = {
   title: "A2 · Ropa y tallas",
   problems: [
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "What size are you?",
       answerTiles: [
         "¿Qué",
@@ -308,7 +308,7 @@ export const a2u4Ropa: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Te queda muy bien ese vestido.",
+      questionTarget: "Te queda muy bien ese vestido.",
       answerTiles: [
         "That",
         "dress",
@@ -321,14 +321,14 @@ export const a2u4Ropa: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: Do you have it in black?",
       acceptableAnswers: ["¿lo tienes en negro?", "lo tienes en negro", "¿lo tenéis en negro?"],
     },
     {
       type: "SPEAK",
       questionEn: "Say: I take a medium.",
-      targetEs: "Uso la talla mediana.",
+      targetText: "Uso la talla mediana.",
     },
   ],
 };
@@ -337,7 +337,7 @@ export const a2u4Hotel: Lesson = {
   title: "A2 · Reservar un hotel",
   problems: [
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "I'd like a double room for two nights.",
       answerTiles: [
         "Quería",
@@ -359,12 +359,12 @@ export const a2u4Hotel: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "¿A qué hora es el check-out?",
+      questionTarget: "¿A qué hora es el check-out?",
       answerTiles: ["What", "time", "is", "check-out?"],
       correctAnswer: [0, 1, 2, 3],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: Is there Wi-Fi in the room?",
       acceptableAnswers: [
         "¿hay wifi en la habitación?",
@@ -374,7 +374,7 @@ export const a2u4Hotel: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: Tell me your name, please.",
-      targetEs: "Dígame su nombre, por favor.",
+      targetText: "Dígame su nombre, por favor.",
     },
   ],
 };
@@ -383,7 +383,7 @@ export const a2u4Verano: Lesson = {
   title: "A2 · El verano pasado (intro)",
   problems: [
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "Last summer I went to the beach.",
       answerTiles: [
         "El",
@@ -405,19 +405,19 @@ export const a2u4Verano: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Comimos en un restaurante muy bueno.",
+      questionTarget: "Comimos en un restaurante muy bueno.",
       answerTiles: ["We", "ate", "at", "a", "very", "good", "restaurant."],
       correctAnswer: [0, 1, 2, 3, 4, 5, 6],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: I traveled with my husband.",
       acceptableAnswers: ["viajé con mi marido"],
     },
     {
       type: "SPEAK",
       questionEn: "Say: It rained a lot.",
-      targetEs: "Llovió mucho.",
+      targetText: "Llovió mucho.",
     },
   ],
 };
@@ -426,7 +426,7 @@ export const a2u4Review: Lesson = {
   title: "A2 · Unit 4 review",
   problems: [
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: How much is this dress in size M?",
       acceptableAnswers: [
         "¿cuánto cuesta este vestido en talla mediana?",
@@ -443,11 +443,11 @@ export const a2u4Review: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: I'd like to book a single room.",
-      targetEs: "Quería reservar una habitación individual.",
+      targetText: "Quería reservar una habitación individual.",
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "No me queda bien, ¿lo tienes en otra talla?",
+      questionTarget: "No me queda bien, ¿lo tienes en otra talla?",
       answerTiles: [
         "It",
         "doesn't",

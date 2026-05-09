@@ -5,7 +5,7 @@ export const c1u10Registro: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Le ruego que disculpe las molestias ocasionadas.",
+      questionTarget: "Le ruego que disculpe las molestias ocasionadas.",
       answerTiles: [
         "I",
         "kindly",
@@ -20,7 +20,7 @@ export const c1u10Registro: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7, 8],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn:
         "Translate (informal): Sorry for the hassle, mate.",
       acceptableAnswers: [
@@ -40,7 +40,7 @@ export const c1u10Registro: Lesson = {
       ],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "(Formal) Could you please tell me your name?",
       answerTiles: [
         "¿Podría",
@@ -57,7 +57,7 @@ export const c1u10Registro: Lesson = {
     {
       type: "SPEAK",
       questionEn: "(Informal) Say: Look, the thing is, I'm fed up.",
-      targetEs: "Mira, es que estoy hasta las narices.",
+      targetText: "Mira, es que estoy hasta las narices.",
     },
   ],
 };
@@ -67,12 +67,12 @@ export const c1u10Modismos: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "A buenas horas, mangas verdes.",
+      questionTarget: "A buenas horas, mangas verdes.",
       answerTiles: ["Too", "little,", "too", "late."],
       correctAnswer: [0, 1, 2, 3],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate (idiomatic): It's better late than never.",
       acceptableAnswers: [
         "más vale tarde que nunca",
@@ -85,7 +85,7 @@ export const c1u10Modismos: Lesson = {
       acceptableAnswers: ["no tienes pelos en la lengua"],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "She has a lot of nerve. (idiom)",
       answerTiles: ["Tiene", "Hace", "mucha", "cara,", "valor,", "dura."],
       correctAnswer: [0, 2, 3],
@@ -94,7 +94,7 @@ export const c1u10Modismos: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say (idiom): It cost an arm and a leg.",
-      targetEs: "Costó un ojo de la cara.",
+      targetText: "Costó un ojo de la cara.",
     },
   ],
 };
@@ -104,7 +104,7 @@ export const c1u10Conectores: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs:
+      questionTarget:
         "No obstante, conviene matizar algunos puntos antes de concluir.",
       answerTiles: [
         "Nevertheless,",
@@ -120,7 +120,7 @@ export const c1u10Conectores: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7, 8],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: Therefore, we cannot accept the proposal.",
       acceptableAnswers: [
         "por consiguiente, no podemos aceptar la propuesta",
@@ -135,7 +135,7 @@ export const c1u10Conectores: Lesson = {
       acceptableAnswers: ["cabe señalar que los datos no son concluyentes"],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "On the other hand, we should consider the alternatives.",
       answerTiles: [
         "Por",
@@ -153,7 +153,7 @@ export const c1u10Conectores: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: To put it briefly, the result is not satisfactory.",
-      targetEs: "En resumidas cuentas, el resultado no es satisfactorio.",
+      targetText: "En resumidas cuentas, el resultado no es satisfactorio.",
     },
   ],
 };
@@ -163,7 +163,7 @@ export const c1u10Ironia: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs:
+      questionTarget:
         "¡Qué bien, otra reunión más! Justo lo que necesitaba un lunes.",
       answerTiles: [
         "Great,",
@@ -180,7 +180,7 @@ export const c1u10Ironia: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate (sarcastic): Oh sure, that's just brilliant.",
       acceptableAnswers: [
         "sí, claro, qué bien",
@@ -195,7 +195,7 @@ export const c1u10Ironia: Lesson = {
       acceptableAnswers: ["lo dices muy en serio, ¿no?", "lo dices muy en serio no"],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "Yeah right, like that's going to happen.",
       answerTiles: [
         "Sí,",
@@ -213,7 +213,7 @@ export const c1u10Ironia: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say (with irony): Of course, you're always right.",
-      targetEs: "Por supuesto, tú siempre tienes razón.",
+      targetText: "Por supuesto, tú siempre tienes razón.",
     },
   ],
 };
@@ -222,7 +222,7 @@ export const c1u10Review: Lesson = {
   title: "C1 · Unit 10 review",
   problems: [
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn:
         "Translate: That said, there are nuances we shouldn't ignore.",
       acceptableAnswers: [
@@ -239,11 +239,11 @@ export const c1u10Review: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say (formal): I would appreciate a prompt response.",
-      targetEs: "Le agradecería una respuesta a la mayor brevedad.",
+      targetText: "Le agradecería una respuesta a la mayor brevedad.",
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Estoy hasta el gorro de tantas excusas.",
+      questionTarget: "Estoy hasta el gorro de tantas excusas.",
       answerTiles: [
         "I'm",
         "fed",
@@ -263,7 +263,7 @@ export const c1u11Entrevista: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs:
+      questionTarget:
         "Cuénteme un poco sobre su trayectoria profesional, por favor.",
       answerTiles: [
         "Tell",
@@ -279,7 +279,7 @@ export const c1u11Entrevista: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7, 8],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn:
         "Translate: My greatest strength is my ability to work in a team.",
       acceptableAnswers: [
@@ -297,7 +297,7 @@ export const c1u11Entrevista: Lesson = {
       ],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "I'm looking for a new challenge.",
       answerTiles: [
         "Estoy",
@@ -313,7 +313,7 @@ export const c1u11Entrevista: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: Thank you for the opportunity.",
-      targetEs: "Le agradezco la oportunidad.",
+      targetText: "Le agradezco la oportunidad.",
     },
   ],
 };
@@ -323,7 +323,7 @@ export const c1u11Reuniones: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs:
+      questionTarget:
         "Adjunto le envío el informe que me solicitó la semana pasada.",
       answerTiles: [
         "Attached,",
@@ -340,7 +340,7 @@ export const c1u11Reuniones: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: Looking forward to your reply, kind regards.",
       acceptableAnswers: [
         "a la espera de su respuesta, un cordial saludo",
@@ -357,7 +357,7 @@ export const c1u11Reuniones: Lesson = {
       ],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "Could we postpone the meeting until tomorrow?",
       answerTiles: [
         "¿Podríamos",
@@ -374,7 +374,7 @@ export const c1u11Reuniones: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: I think we should reach a consensus.",
-      targetEs: "Creo que deberíamos llegar a un consenso.",
+      targetText: "Creo que deberíamos llegar a un consenso.",
     },
   ],
 };
@@ -384,7 +384,7 @@ export const c1u11Negociar: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs:
+      questionTarget:
         "Si nos hicieran una rebaja, podríamos cerrar el acuerdo hoy mismo.",
       answerTiles: [
         "If",
@@ -403,7 +403,7 @@ export const c1u11Negociar: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: We are open to a counterproposal.",
       acceptableAnswers: [
         "estamos abiertos a una contrapropuesta",
@@ -417,7 +417,7 @@ export const c1u11Negociar: Lesson = {
       acceptableAnswers: ["permítame hacerle una contraoferta"],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "I think we can find a middle ground.",
       answerTiles: [
         "Creo",
@@ -434,7 +434,7 @@ export const c1u11Negociar: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: That's our best offer.",
-      targetEs: "Esa es nuestra mejor oferta.",
+      targetText: "Esa es nuestra mejor oferta.",
     },
   ],
 };
@@ -444,7 +444,7 @@ export const c1u11Curriculum: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Llevo cinco años desarrollando software en el sector financiero.",
+      questionTarget: "Llevo cinco años desarrollando software en el sector financiero.",
       answerTiles: [
         "I've",
         "been",
@@ -461,7 +461,7 @@ export const c1u11Curriculum: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn:
         "Translate: I have a master's degree in computer engineering.",
       acceptableAnswers: [
@@ -477,7 +477,7 @@ export const c1u11Curriculum: Lesson = {
       ],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "I'm fluent in English and conversational in Spanish.",
       answerTiles: [
         "Hablo",
@@ -497,7 +497,7 @@ export const c1u11Curriculum: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: My biggest project was a payment platform.",
-      targetEs: "Mi proyecto más grande fue una plataforma de pagos.",
+      targetText: "Mi proyecto más grande fue una plataforma de pagos.",
     },
   ],
 };
@@ -506,7 +506,7 @@ export const c1u11Review: Lesson = {
   title: "C1 · Unit 11 review",
   problems: [
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn:
         "Translate: I would like to schedule a call this week to discuss it.",
       acceptableAnswers: [
@@ -524,11 +524,11 @@ export const c1u11Review: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: I'd be open to discussing terms.",
-      targetEs: "Estaría abierto a discutir las condiciones.",
+      targetText: "Estaría abierto a discutir las condiciones.",
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Le envío adjunto el contrato firmado.",
+      questionTarget: "Le envío adjunto el contrato firmado.",
       answerTiles: [
         "I'm",
         "sending",

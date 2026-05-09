@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - claude/custom-duolingo-spain-spanish-zIPlk
   workflow_dispatch:
 
 permissions:

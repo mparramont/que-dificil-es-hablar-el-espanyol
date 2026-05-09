@@ -34,11 +34,15 @@ import { useRouter } from "next/router";
 import { LoginScreen, useLoginScreen } from "~/components/LoginScreen";
 import { useBoundStore } from "~/hooks/useBoundStore";
 import type { Tile, TileType, Unit } from "~/utils/units";
-import { units } from "~/utils/units";
+import { useActiveCourse } from "~/courses/registry";
 
 type TileStatus = "LOCKED" | "ACTIVE" | "COMPLETE";
 
-const tileStatus = (tile: Tile, lessonsCompleted: number): TileStatus => {
+const tileStatus = (
+  tile: Tile,
+  lessonsCompleted: number,
+  units: readonly Unit[],
+): TileStatus => {
   const lessonsPerTile = 4;
   const tilesCompleted = Math.floor(lessonsCompleted / lessonsPerTile);
   const tiles = units.flatMap((unit) => unit.tiles);
@@ -227,7 +231,8 @@ const TileTooltip = ({
     return () => window.removeEventListener("click", containsTileTooltip, true);
   }, [selectedTile, tileTooltipRef, closeTooltip, index]);
 
-  const unit = units.find((unit) => unit.unitNumber === unitNumber);
+  const course = useActiveCourse();
+  const unit = course.units.find((u) => u.unitNumber === unitNumber);
   const activeBackgroundColor = unit?.backgroundColor ?? "bg-green-500";
   const activeTextColor = unit?.textColor ?? "text-green-500";
 
@@ -319,6 +324,7 @@ const UnitSection = ({ unit }: { unit: Unit }): JSX.Element => {
 
   const closeTooltip = useCallback(() => setSelectedTile(null), []);
 
+  const course = useActiveCourse();
   const lessonsCompleted = useBoundStore((x) => x.lessonsCompleted);
   const increaseLessonsCompleted = useBoundStore(
     (x) => x.increaseLessonsCompleted,
@@ -335,7 +341,7 @@ const UnitSection = ({ unit }: { unit: Unit }): JSX.Element => {
       />
       <div className="relative mb-8 mt-[67px] flex max-w-2xl flex-col items-center gap-4">
         {unit.tiles.map((tile, i): JSX.Element => {
-          const status = tileStatus(tile, lessonsCompleted);
+          const status = tileStatus(tile, lessonsCompleted, course.units);
           return (
             <Fragment key={i}>
               {(() => {
@@ -469,6 +475,7 @@ const UnitSection = ({ unit }: { unit: Unit }): JSX.Element => {
 
 const getTopBarColors = (
   scrollY: number,
+  units: readonly Unit[],
 ): {
   backgroundColor: `bg-${string}`;
   borderColor: `border-${string}`;
@@ -498,7 +505,8 @@ const Learn: NextPage = () => {
     return () => document.removeEventListener("scroll", updateScrollY);
   }, [scrollY]);
 
-  const topBarColors = getTopBarColors(scrollY);
+  const course = useActiveCourse();
+  const topBarColors = getTopBarColors(scrollY, course.units);
 
   return (
     <>
@@ -510,7 +518,7 @@ const Learn: NextPage = () => {
 
       <div className="flex justify-center gap-3 pt-14 sm:p-6 sm:pt-10 md:ml-24 lg:ml-64 lg:gap-12">
         <div className="flex max-w-2xl grow flex-col">
-          {units.map((unit) => (
+          {course.units.map((unit) => (
             <UnitSection unit={unit} key={unit.unitNumber} />
           ))}
           <div className="sticky bottom-28 left-0 right-0 flex items-end justify-between">
