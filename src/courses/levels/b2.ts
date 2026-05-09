@@ -5,7 +5,7 @@ export const b2u8Defender: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Sostengo que es una decisión equivocada.",
+      questionTarget: "Sostengo que es una decisión equivocada.",
       answerTiles: [
         "I",
         "maintain",
@@ -18,7 +18,7 @@ export const b2u8Defender: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: From my point of view, the issue is more complex.",
       acceptableAnswers: [
         "desde mi punto de vista, el tema es más complejo",
@@ -36,7 +36,7 @@ export const b2u8Defender: Lesson = {
       ],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "However, the data tells us something different.",
       answerTiles: [
         "Sin",
@@ -54,7 +54,7 @@ export const b2u8Defender: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: I'd like to add one more thing.",
-      targetEs: "Me gustaría añadir una cosa más.",
+      targetText: "Me gustaría añadir una cosa más.",
     },
   ],
 };
@@ -63,7 +63,7 @@ export const b2u8Aunque: Lesson = {
   title: "B2 · Aunque… (concesión)",
   problems: [
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "Even though I'm tired, I'm going to keep working.",
       answerTiles: [
         "Aunque",
@@ -79,7 +79,7 @@ export const b2u8Aunque: Lesson = {
       // Indicative when the fact is real/known
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: Even if it rains tomorrow, we'll go anyway.",
       acceptableAnswers: [
         "aunque llueva mañana, iremos igualmente",
@@ -99,7 +99,7 @@ export const b2u8Aunque: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Por mucho que se esfuerce, no llegará a tiempo.",
+      questionTarget: "Por mucho que se esfuerce, no llegará a tiempo.",
       answerTiles: [
         "However",
         "much",
@@ -116,7 +116,7 @@ export const b2u8Aunque: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: Even though I don't agree, I respect your decision.",
-      targetEs: "Aunque no esté de acuerdo, respeto tu decisión.",
+      targetText: "Aunque no esté de acuerdo, respeto tu decisión.",
     },
   ],
 };
@@ -126,7 +126,7 @@ export const b2u8Discrepar: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Entiendo lo que dices, pero no termina de convencerme.",
+      questionTarget: "Entiendo lo que dices, pero no termina de convencerme.",
       answerTiles: [
         "I",
         "understand",
@@ -143,7 +143,7 @@ export const b2u8Discrepar: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: With all due respect, I see it differently.",
       acceptableAnswers: [
         "con todos mis respetos, lo veo de otra manera",
@@ -160,7 +160,7 @@ export const b2u8Discrepar: Lesson = {
       ],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "Maybe you're right, but I'm not so sure.",
       answerTiles: [
         "Quizá",
@@ -179,7 +179,7 @@ export const b2u8Discrepar: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: That's a fair point, but consider this.",
-      targetEs: "Es un buen argumento, pero considera esto.",
+      targetText: "Es un buen argumento, pero considera esto.",
     },
   ],
 };
@@ -188,7 +188,7 @@ export const b2u8Pluscuamp: Lesson = {
   title: "B2 · Si lo hubiera sabido…",
   problems: [
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: If I had known, I would have called you.",
       acceptableAnswers: [
         "si lo hubiera sabido, te habría llamado",
@@ -198,7 +198,7 @@ export const b2u8Pluscuamp: Lesson = {
       ],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "If we had left earlier, we wouldn't have missed the train.",
       answerTiles: [
         "Si",
@@ -224,7 +224,7 @@ export const b2u8Pluscuamp: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "De haberlo sabido, no habría venido.",
+      questionTarget: "De haberlo sabido, no habría venido.",
       answerTiles: [
         "Had",
         "I",
@@ -239,7 +239,7 @@ export const b2u8Pluscuamp: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: If I were you, I would have refused.",
-      targetEs: "Yo en tu lugar, me habría negado.",
+      targetText: "Yo en tu lugar, me habría negado.",
     },
   ],
 };
@@ -248,7 +248,7 @@ export const b2u8Review: Lesson = {
   title: "B2 · Unit 8 review",
   problems: [
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: I respect your opinion, but I think you're wrong.",
       acceptableAnswers: [
         "respeto tu opinión, pero creo que te equivocas",
@@ -267,11 +267,11 @@ export const b2u8Review: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: If you had told me, I would have come.",
-      targetEs: "Si me lo hubieras dicho, habría venido.",
+      targetText: "Si me lo hubieras dicho, habría venido.",
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Por un lado, tienes razón; por otro, hay matices.",
+      questionTarget: "Por un lado, tienes razón; por otro, hay matices.",
       answerTiles: [
         "On",
         "one",
@@ -295,7 +295,7 @@ export const b2u9Regiones: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "En el norte se habla gallego, vasco y catalán.",
+      questionTarget: "En el norte se habla gallego, vasco y catalán.",
       answerTiles: [
         "In",
         "the",
@@ -310,7 +310,7 @@ export const b2u9Regiones: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7, 8],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: Andalusia is famous for its flamenco and tapas.",
       acceptableAnswers: [
         "andalucía es famosa por su flamenco y sus tapas",
@@ -326,7 +326,7 @@ export const b2u9Regiones: Lesson = {
       ],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "Galicia is in the northwest of the peninsula.",
       answerTiles: [
         "Galicia",
@@ -344,7 +344,7 @@ export const b2u9Regiones: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: I'd love to visit the Basque Country.",
-      targetEs: "Me encantaría visitar el País Vasco.",
+      targetText: "Me encantaría visitar el País Vasco.",
     },
   ],
 };
@@ -354,7 +354,7 @@ export const b2u9Tradiciones: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "La Tomatina se celebra en Buñol todos los años en agosto.",
+      questionTarget: "La Tomatina se celebra en Buñol todos los años en agosto.",
       answerTiles: [
         "La",
         "Tomatina",
@@ -370,7 +370,7 @@ export const b2u9Tradiciones: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: During Holy Week there are processions everywhere.",
       acceptableAnswers: [
         "durante la semana santa hay procesiones por todas partes",
@@ -384,7 +384,7 @@ export const b2u9Tradiciones: Lesson = {
       acceptableAnswers: ["las fallas de valencia son espectaculares"],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "We have dinner late and we go out at midnight.",
       answerTiles: [
         "Cenamos",
@@ -404,7 +404,7 @@ export const b2u9Tradiciones: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: It's a tradition we maintain at home.",
-      targetEs: "Es una tradición que mantenemos en casa.",
+      targetText: "Es una tradición que mantenemos en casa.",
     },
   ],
 };
@@ -414,7 +414,7 @@ export const b2u9Sobremesa: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "La sobremesa es el momento sagrado después de comer.",
+      questionTarget: "La sobremesa es el momento sagrado después de comer.",
       answerTiles: [
         "The",
         "sobremesa",
@@ -428,7 +428,7 @@ export const b2u9Sobremesa: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn:
         "Translate: We spent two hours chatting at the table after dessert.",
       acceptableAnswers: [
@@ -446,7 +446,7 @@ export const b2u9Sobremesa: Lesson = {
       ],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "Lunch ends, but the conversation goes on.",
       answerTiles: [
         "La",
@@ -465,7 +465,7 @@ export const b2u9Sobremesa: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: There's nothing better than a good sobremesa.",
-      targetEs: "No hay nada mejor que una buena sobremesa.",
+      targetText: "No hay nada mejor que una buena sobremesa.",
     },
   ],
 };
@@ -475,7 +475,7 @@ export const b2u9Politica: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "El gobierno ha aprobado una nueva ley sobre vivienda.",
+      questionTarget: "El gobierno ha aprobado una nueva ley sobre vivienda.",
       answerTiles: [
         "The",
         "government",
@@ -489,7 +489,7 @@ export const b2u9Politica: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: There were protests in the main square.",
       acceptableAnswers: [
         "hubo protestas en la plaza mayor",
@@ -503,7 +503,7 @@ export const b2u9Politica: Lesson = {
       acceptableAnswers: ["habrá elecciones generales el año que viene"],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "Many young people leave the country to work abroad.",
       answerTiles: [
         "Muchos",
@@ -521,7 +521,7 @@ export const b2u9Politica: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: It's a problem that affects the whole society.",
-      targetEs: "Es un problema que afecta a toda la sociedad.",
+      targetText: "Es un problema que afecta a toda la sociedad.",
     },
   ],
 };
@@ -530,7 +530,7 @@ export const b2u9Review: Lesson = {
   title: "B2 · Unit 9 review",
   problems: [
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: Each region has its own dishes and traditions.",
       acceptableAnswers: [
         "cada región tiene sus propios platos y tradiciones",
@@ -545,11 +545,11 @@ export const b2u9Review: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: We finished lunch at four in the afternoon.",
-      targetEs: "Acabamos de comer a las cuatro de la tarde.",
+      targetText: "Acabamos de comer a las cuatro de la tarde.",
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "El flamenco no es solo música, es una forma de vida.",
+      questionTarget: "El flamenco no es solo música, es una forma de vida.",
       answerTiles: [
         "Flamenco",
         "isn't",

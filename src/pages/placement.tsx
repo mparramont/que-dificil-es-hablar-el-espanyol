@@ -3,163 +3,63 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
 import { useBoundStore } from "~/hooks/useBoundStore";
+import { useActiveCourse } from "~/courses/registry";
+import type { CoursePlacement } from "~/courses/types";
 
-type Level = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
+type AnswerResult = { level: string; correct: boolean };
 
-type PlacementQuestion = {
-  level: Level;
-  question: string;
-  context?: string;
-  options: string[];
-  correct: number;
-};
-
-const questions: PlacementQuestion[] = [
-  {
-    level: "A1",
-    question: "Hola, ¿cómo te ___?",
-    context: "— Me llamo Lin.",
-    options: ["llamas", "llamo", "llama", "llaman"],
-    correct: 0,
-  },
-  {
-    level: "A1",
-    question: "Soy ___ China.",
-    options: ["en", "a", "de", "por"],
-    correct: 2,
-  },
-  {
-    level: "A2",
-    question: "Todas las mañanas ___ a las siete.",
-    options: ["me levanto", "me levantó", "se levantó", "te levantas"],
-    correct: 0,
-  },
-  {
-    level: "A2",
-    question: "El verano pasado ___ a Galicia.",
-    options: ["voy", "fui", "iba", "iré"],
-    correct: 1,
-  },
-  {
-    level: "B1",
-    question: "Hoy ___ al médico, no he podido ir antes.",
-    context: "Spain Spanish: 'today' actions use the present perfect.",
-    options: ["fui", "iba", "he ido", "voy"],
-    correct: 2,
-  },
-  {
-    level: "B1",
-    question: "Espero que ___ tiempo este finde.",
-    options: ["tienes", "tengas", "tendrás", "tenías"],
-    correct: 1,
-  },
-  {
-    level: "B2",
-    question: "Aunque ___, voy a salir igualmente.",
-    options: ["llueve", "llueva", "llovía", "lloviera"],
-    correct: 1,
-    // Hypothetical → subjunctive
-  },
-  {
-    level: "B2",
-    question: "Si lo ___, te habría llamado.",
-    options: ["sé", "sabía", "hubiera sabido", "supe"],
-    correct: 2,
-  },
-  {
-    level: "C1",
-    question:
-      "El informe pone de ___ una tendencia preocupante en el sector.",
-    options: ["manifiesto", "manifestar", "manifiesta", "manifestación"],
-    correct: 0,
-  },
-  {
-    level: "C1",
-    question: "A buenas horas, ___ verdes.",
-    context: "Idiom: 'too little, too late'.",
-    options: ["botas", "mangas", "hojas", "ramas"],
-    correct: 1,
-  },
-  {
-    level: "C2",
-    question:
-      "No es de extrañar que el debate ___ tintes encendidos en los últimos días.",
-    options: ["ha tomado", "haya tomado", "tomara", "toma"],
-    correct: 1,
-  },
-  {
-    level: "C2",
-    question:
-      "Conviene matizar que los datos no son ___ a otras poblaciones.",
-    options: [
-      "extrapolables",
-      "extrapolados",
-      "extrapolaciones",
-      "extrapolando",
-    ],
-    correct: 0,
-  },
-];
-
-const levels: readonly Level[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
-
-const levelToStartUnit: Record<Level, number> = {
-  A1: 1,
-  A2: 3,
-  B1: 5,
-  B2: 8,
-  C1: 10,
-  C2: 12,
+type Recommendation = {
+  highestPassed: string | null;
+  recommendedUnit: number;
+  recommendedLabel: string;
 };
 
 const computeRecommendation = (
-  results: { level: Level; correct: boolean }[],
-): { highestPassed: Level | null; recommendedUnit: number; recommendedLabel: string } => {
-  const correctByLevel: Record<Level, number> = {
-    A1: 0,
-    A2: 0,
-    B1: 0,
-    B2: 0,
-    C1: 0,
-    C2: 0,
-  };
+  results: AnswerResult[],
+  placement: CoursePlacement,
+): Recommendation => {
+  const correctByLevel: Record<string, number> = {};
+  for (const lv of placement.levels) correctByLevel[lv] = 0;
   for (const r of results) {
-    if (r.correct) correctByLevel[r.level] += 1;
+    if (r.correct) correctByLevel[r.level] = (correctByLevel[r.level] ?? 0) + 1;
   }
-  // "passed" = both questions of the level correct
-  let highestPassed: Level | null = null;
-  for (const level of levels) {
-    if (correctByLevel[level] >= 2) highestPassed = level;
+  let highestPassed: string | null = null;
+  for (const level of placement.levels) {
+    if ((correctByLevel[level] ?? 0) >= 2) highestPassed = level;
   }
   if (highestPassed === null) {
+    const first = placement.levels[0] ?? "Beginner";
     return {
       highestPassed: null,
-      recommendedUnit: 1,
-      recommendedLabel: "A1",
+      recommendedUnit: placement.levelToStartUnit[first] ?? 1,
+      recommendedLabel: first,
     };
   }
-  if (highestPassed === "C2") {
+  const top = placement.levels[placement.levels.length - 1];
+  if (highestPassed === top) {
     return {
-      highestPassed: "C2",
-      recommendedUnit: 12,
-      recommendedLabel: "C2 (you've mastered the lot)",
+      highestPassed,
+      recommendedUnit: placement.levelToStartUnit[top] ?? 1,
+      recommendedLabel: `${top} (you've mastered the lot)`,
     };
   }
-  const idx = levels.indexOf(highestPassed);
-  const next = levels[idx + 1] ?? "C2";
+  const idx = placement.levels.indexOf(highestPassed);
+  const next = placement.levels[idx + 1] ?? top ?? highestPassed;
   return {
     highestPassed,
-    recommendedUnit: levelToStartUnit[next],
+    recommendedUnit: placement.levelToStartUnit[next] ?? 1,
     recommendedLabel: next,
   };
 };
 
 const Placement: NextPage = () => {
   const router = useRouter();
+  const course = useActiveCourse();
+  const placement = course.placement;
+  const questions = placement.questions;
+
   const [step, setStep] = useState(0);
-  const [results, setResults] = useState<{ level: Level; correct: boolean }[]>(
-    [],
-  );
+  const [results, setResults] = useState<AnswerResult[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
 
@@ -167,8 +67,8 @@ const Placement: NextPage = () => {
 
   const finished = step >= questions.length;
   const recommendation = useMemo(
-    () => computeRecommendation(results),
-    [results],
+    () => computeRecommendation(results, placement),
+    [results, placement],
   );
 
   if (finished) {
@@ -177,12 +77,14 @@ const Placement: NextPage = () => {
         <h1 className="text-3xl font-bold">Placement complete</h1>
         <p className="max-w-md text-center text-lg">
           {recommendation.highestPassed === null
-            ? "Looks like a fresh start. We'll begin at A1."
+            ? `Looks like a fresh start. We'll begin at ${placement.levels[0] ?? ""}.`
             : `Highest level you passed: ${recommendation.highestPassed}. We'll drop you at ${recommendation.recommendedLabel}.`}
         </p>
         <div className="flex flex-col gap-3 rounded-2xl bg-white/10 p-5 text-sm">
-          <div className="font-bold uppercase opacity-80">Score by level</div>
-          {levels.map((lv) => {
+          <div className="font-bold uppercase opacity-80">
+            Score by level — {course.name}
+          </div>
+          {placement.levels.map((lv) => {
             const total = questions.filter((q) => q.level === lv).length;
             const correct = results.filter(
               (r) => r.level === lv && r.correct,
@@ -239,7 +141,7 @@ const Placement: NextPage = () => {
           Exit
         </Link>
         <div className="text-sm uppercase tracking-wide text-gray-500">
-          Question {step + 1} / {questions.length}
+          {course.name} · Question {step + 1} / {questions.length}
         </div>
         <span className="rounded-full bg-[#235390] px-3 py-1 text-xs font-bold text-white">
           {q.level}
@@ -254,7 +156,9 @@ const Placement: NextPage = () => {
       </div>
 
       <section className="mx-auto flex w-full max-w-xl grow flex-col gap-6">
-        <h1 className="text-2xl font-bold sm:text-3xl">Choose the right option</h1>
+        <h1 className="text-2xl font-bold sm:text-3xl">
+          Choose the right option
+        </h1>
         <p className="text-xl">{q.question}</p>
         {q.context && (
           <p className="text-sm italic text-gray-500">{q.context}</p>

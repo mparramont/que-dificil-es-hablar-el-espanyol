@@ -4,7 +4,7 @@ export const a1u1Saludos: Lesson = {
   title: "A1 · Saludos básicos",
   problems: [
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "Hello, what's your name?",
       answerTiles: ["Hola,", "¿cómo", "te", "llamas?", "estás?", "se"],
       correctAnswer: [0, 1, 2, 3],
@@ -17,19 +17,19 @@ export const a1u1Saludos: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Buenos días, ¿qué tal?",
+      questionTarget: "Buenos días, ¿qué tal?",
       answerTiles: ["Good", "morning,", "how", "are", "you?"],
       correctAnswer: [0, 1, 2, 3, 4],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: Goodbye, see you tomorrow.",
       acceptableAnswers: ["adiós, hasta mañana", "adiós hasta mañana"],
     },
     {
       type: "SPEAK",
       questionEn: "Say: Hello, I'm Lin.",
-      targetEs: "Hola, soy Lin.",
+      targetText: "Hola, soy Lin.",
     },
   ],
 };
@@ -38,7 +38,7 @@ export const a1u1SoyDe: Lesson = {
   title: "A1 · Soy de…",
   problems: [
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "I'm from Malaysia.",
       answerTiles: ["Soy", "Estoy", "de", "Malasia.", "España."],
       correctAnswer: [0, 2, 3],
@@ -51,19 +51,19 @@ export const a1u1SoyDe: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "¿De dónde eres?",
+      questionTarget: "¿De dónde eres?",
       answerTiles: ["Where", "are", "you", "from?"],
       correctAnswer: [0, 1, 2, 3],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: I live in Spain.",
       acceptableAnswers: ["vivo en españa"],
     },
     {
       type: "SPEAK",
       questionEn: "Say: I'm Chinese, but I live in Madrid.",
-      targetEs: "Soy china, pero vivo en Madrid.",
+      targetText: "Soy china, pero vivo en Madrid.",
     },
   ],
 };
@@ -72,7 +72,7 @@ export const a1u1Numeros: Lesson = {
   title: "A1 · Números y edad",
   problems: [
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "I'm thirty years old.",
       answerTiles: ["Tengo", "Soy", "treinta", "años.", "veinte"],
       correctAnswer: [0, 2, 3],
@@ -85,19 +85,19 @@ export const a1u1Numeros: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Mi número de teléfono es seis siete ocho.",
+      questionTarget: "Mi número de teléfono es seis siete ocho.",
       answerTiles: ["My", "phone", "number", "is", "six", "seven", "eight."],
       correctAnswer: [0, 1, 2, 3, 4, 5, 6],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: How old are you?",
       acceptableAnswers: ["¿cuántos años tienes?", "cuántos años tienes"],
     },
     {
       type: "SPEAK",
       questionEn: "Say: I have two sisters.",
-      targetEs: "Tengo dos hermanas.",
+      targetText: "Tengo dos hermanas.",
     },
   ],
 };
@@ -106,7 +106,7 @@ export const a1u1Familia: Lesson = {
   title: "A1 · La familia",
   problems: [
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "My mother is from China.",
       answerTiles: ["Mi", "madre", "padre", "es", "está", "de", "China."],
       correctAnswer: [0, 1, 3, 5, 6],
@@ -119,19 +119,19 @@ export const a1u1Familia: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Mi marido se llama Marc.",
+      questionTarget: "Mi marido se llama Marc.",
       answerTiles: ["My", "husband's", "name", "is", "Marc."],
       correctAnswer: [0, 1, 2, 3, 4],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: My family is small.",
       acceptableAnswers: ["mi familia es pequeña"],
     },
     {
       type: "SPEAK",
       questionEn: "Say: My grandmother lives with us.",
-      targetEs: "Mi abuela vive con nosotros.",
+      targetText: "Mi abuela vive con nosotros.",
     },
   ],
 };
@@ -140,7 +140,7 @@ export const a1u1Review: Lesson = {
   title: "A1 · Unit 1 review",
   problems: [
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: Hi, I'm Lin and I'm from Malaysia.",
       acceptableAnswers: [
         "hola, soy lin y soy de malasia",
@@ -156,11 +156,11 @@ export const a1u1Review: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: Nice to meet you.",
-      targetEs: "Mucho gusto.",
+      targetText: "Mucho gusto.",
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "¿De dónde es tu marido?",
+      questionTarget: "¿De dónde es tu marido?",
       answerTiles: ["Where", "is", "your", "husband", "from?"],
       correctAnswer: [0, 1, 2, 3, 4],
     },
@@ -171,7 +171,7 @@ export const a1u2Pedir: Lesson = {
   title: "A1 · Pedir en un bar",
   problems: [
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "A coffee, please.",
       answerTiles: ["Un", "Una", "café,", "té,", "por", "favor."],
       correctAnswer: [0, 2, 4, 5],
@@ -188,12 +188,12 @@ export const a1u2Pedir: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Quiero un agua sin gas.",
+      questionTarget: "Quiero un agua sin gas.",
       answerTiles: ["I", "want", "a", "still", "water."],
       correctAnswer: [0, 1, 2, 3, 4],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: Two beers, please.",
       acceptableAnswers: ["dos cervezas, por favor", "dos cervezas por favor", "dos cañas por favor"],
       hint: "In Spain, a small beer is a 'caña'.",
@@ -201,7 +201,7 @@ export const a1u2Pedir: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: A coffee with milk, please.",
-      targetEs: "Un café con leche, por favor.",
+      targetText: "Un café con leche, por favor.",
     },
   ],
 };
@@ -210,7 +210,7 @@ export const a1u2Cuenta: Lesson = {
   title: "A1 · La cuenta, por favor",
   problems: [
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "The bill, please.",
       answerTiles: ["La", "El", "cuenta,", "menú,", "por", "favor."],
       correctAnswer: [0, 2, 4, 5],
@@ -226,12 +226,12 @@ export const a1u2Cuenta: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Son doce euros con cincuenta.",
+      questionTarget: "Son doce euros con cincuenta.",
       answerTiles: ["It's", "twelve", "euros", "fifty."],
       correctAnswer: [0, 1, 2, 3],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: Can I pay by card?",
       acceptableAnswers: [
         "¿puedo pagar con tarjeta?",
@@ -241,7 +241,7 @@ export const a1u2Cuenta: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: Keep the change.",
-      targetEs: "Quédate con el cambio.",
+      targetText: "Quédate con el cambio.",
     },
   ],
 };
@@ -250,7 +250,7 @@ export const a1u2Comida: Lesson = {
   title: "A1 · Comida básica",
   problems: [
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "I would like a Spanish omelette.",
       answerTiles: ["Quiero", "Quería", "una", "un", "tortilla", "española."],
       correctAnswer: [1, 2, 4, 5],
@@ -264,19 +264,19 @@ export const a1u2Comida: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "El pan está rico.",
+      questionTarget: "El pan está rico.",
       answerTiles: ["The", "bread", "is", "delicious."],
       correctAnswer: [0, 1, 2, 3],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: I don't eat meat.",
       acceptableAnswers: ["no como carne"],
     },
     {
       type: "SPEAK",
       questionEn: "Say: The paella is very tasty.",
-      targetEs: "La paella está muy buena.",
+      targetText: "La paella está muy buena.",
     },
   ],
 };
@@ -285,7 +285,7 @@ export const a1u2Cuanto: Lesson = {
   title: "A1 · ¿Cuánto cuesta?",
   problems: [
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn: "How much does it cost?",
       answerTiles: ["¿Cuánto", "Cómo", "cuesta?", "cuestan?"],
       correctAnswer: [0, 2],
@@ -298,19 +298,19 @@ export const a1u2Cuanto: Lesson = {
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Es caro, pero está rico.",
+      questionTarget: "Es caro, pero está rico.",
       answerTiles: ["It's", "expensive,", "but", "it's", "delicious."],
       correctAnswer: [0, 1, 2, 3, 4],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: It's cheap.",
       acceptableAnswers: ["es barato", "está barato"],
     },
     {
       type: "SPEAK",
       questionEn: "Say: How much is the menu of the day?",
-      targetEs: "¿Cuánto es el menú del día?",
+      targetText: "¿Cuánto es el menú del día?",
     },
   ],
 };
@@ -319,7 +319,7 @@ export const a1u2Review: Lesson = {
   title: "A1 · Unit 2 review",
   problems: [
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn: "Translate: A small beer and a coffee, please.",
       acceptableAnswers: [
         "una caña y un café, por favor",
@@ -338,11 +338,11 @@ export const a1u2Review: Lesson = {
     {
       type: "SPEAK",
       questionEn: "Say: It's twelve euros.",
-      targetEs: "Son doce euros.",
+      targetText: "Son doce euros.",
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs: "Quería una ración de patatas bravas.",
+      questionTarget: "Quería una ración de patatas bravas.",
       answerTiles: ["I'd", "like", "a", "serving", "of", "patatas", "bravas."],
       correctAnswer: [0, 1, 2, 3, 4, 5, 6],
     },

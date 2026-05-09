@@ -5,7 +5,7 @@ export const c2u12Literaria: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs:
+      questionTarget:
         "El crepúsculo se cernía sobre la ciudad como un manto de seda gris.",
       answerTiles: [
         "Twilight",
@@ -23,7 +23,7 @@ export const c2u12Literaria: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn:
         "Translate (literary): The afternoon was dying slowly between the rooftops.",
       acceptableAnswers: [
@@ -43,7 +43,7 @@ export const c2u12Literaria: Lesson = {
       ],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn:
         "And there, on the corner, time itself seemed to have stopped.",
       answerTiles: [
@@ -65,7 +65,7 @@ export const c2u12Literaria: Lesson = {
       type: "SPEAK",
       questionEn:
         "Say (Lorca-esque): The moon left a trail of silver in the wheat.",
-      targetEs: "La luna dejó un rastro de plata en el trigo.",
+      targetText: "La luna dejó un rastro de plata en el trigo.",
     },
   ],
 };
@@ -75,7 +75,7 @@ export const c2u12Editorial: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs:
+      questionTarget:
         "Resulta cuando menos llamativo que el ejecutivo persista en su negativa.",
       answerTiles: [
         "It",
@@ -96,7 +96,7 @@ export const c2u12Editorial: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn:
         "Translate (op-ed): The lack of transparency feeds the citizens' distrust.",
       acceptableAnswers: [
@@ -115,7 +115,7 @@ export const c2u12Editorial: Lesson = {
       ],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn:
         "We must put on the table a proposal that satisfies the parties involved.",
       answerTiles: [
@@ -141,7 +141,7 @@ export const c2u12Editorial: Lesson = {
       type: "SPEAK",
       questionEn:
         "Say: Many will not be surprised by the outcome of the negotiations.",
-      targetEs:
+      targetText:
         "A muchos no les sorprenderá el desenlace de las negociaciones.",
     },
   ],
@@ -152,7 +152,7 @@ export const c2u12Academico: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs:
+      questionTarget:
         "El presente trabajo aborda la cuestión desde una perspectiva interdisciplinar.",
       answerTiles: [
         "The",
@@ -169,7 +169,7 @@ export const c2u12Academico: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn:
         "Translate: The hypothesis is supported by the evidence gathered in the field.",
       acceptableAnswers: [
@@ -188,7 +188,7 @@ export const c2u12Academico: Lesson = {
       ],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn:
         "Future research lines will need to address these limitations.",
       answerTiles: [
@@ -211,7 +211,7 @@ export const c2u12Academico: Lesson = {
       type: "SPEAK",
       questionEn:
         "Say: The methodology is described in detail in the second chapter.",
-      targetEs: "La metodología se describe con detalle en el segundo capítulo.",
+      targetText: "La metodología se describe con detalle en el segundo capítulo.",
     },
   ],
 };
@@ -221,7 +221,7 @@ export const c2u12Filosofar: Lesson = {
   problems: [
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs:
+      questionTarget:
         "La libertad no es ausencia de límites, sino conciencia de ellos.",
       answerTiles: [
         "Freedom",
@@ -240,7 +240,7 @@ export const c2u12Filosofar: Lesson = {
       correctAnswer: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
     },
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn:
         "Translate (philosophical): To exist is, perhaps, to remember oneself in others.",
       acceptableAnswers: [
@@ -259,7 +259,7 @@ export const c2u12Filosofar: Lesson = {
       ],
     },
     {
-      type: "WRITE_IN_SPANISH",
+      type: "WRITE_IN_TARGET",
       questionEn:
         "We are, in essence, the stories we tell about ourselves.",
       answerTiles: [
@@ -281,7 +281,7 @@ export const c2u12Filosofar: Lesson = {
       type: "SPEAK",
       questionEn:
         "Say: Doubt, far from being a flaw, is the engine of thought.",
-      targetEs: "La duda, lejos de ser un defecto, es el motor del pensamiento.",
+      targetText: "La duda, lejos de ser un defecto, es el motor del pensamiento.",
     },
   ],
 };
@@ -290,7 +290,7 @@ export const c2u12Review: Lesson = {
   title: "C2 · Unit 12 review",
   problems: [
     {
-      type: "FREE_WRITE_ES",
+      type: "FREE_WRITE_TARGET",
       questionEn:
         "Translate: Beyond the anecdote, the figure reveals a structural problem.",
       acceptableAnswers: [
@@ -313,11 +313,11 @@ export const c2u12Review: Lesson = {
       type: "SPEAK",
       questionEn:
         "Say: Time, the silent witness of all of our certainties.",
-      targetEs: "El tiempo, testigo silencioso de todas nuestras certezas.",
+      targetText: "El tiempo, testigo silencioso de todas nuestras certezas.",
     },
     {
       type: "WRITE_IN_ENGLISH",
-      questionEs:
+      questionTarget:
         "Toda traducción es, en el fondo, un acto de interpretación.",
       answerTiles: [
         "Every",

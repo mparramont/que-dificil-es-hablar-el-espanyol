@@ -1,4 +1,4 @@
-import { units } from "~/utils/units";
+import { courses } from "~/courses/registry";
 import type { BoundStateCreator } from "~/hooks/useBoundStore";
 
 export type LessonSlice = {
@@ -14,14 +14,18 @@ export const createLessonSlice: BoundStateCreator<LessonSlice> = (set) => ({
       lessonsCompleted: lessonsCompleted + by,
     })),
   jumpToUnit: (unitNumber: number) =>
-    set(({ lessonsCompleted }) => {
+    set((state) => {
       const lessonsPerTile = 4;
+      const units = courses[state.activeCourseId].units;
       const totalLessonsToJumpToUnit = units
         .filter((unit) => unit.unitNumber < unitNumber)
         .map((unit) => unit.tiles.length * lessonsPerTile)
         .reduce((a, b) => a + b, 0);
       return {
-        lessonsCompleted: Math.max(lessonsCompleted, totalLessonsToJumpToUnit),
+        lessonsCompleted: Math.max(
+          state.lessonsCompleted,
+          totalLessonsToJumpToUnit,
+        ),
       };
     }),
 });
